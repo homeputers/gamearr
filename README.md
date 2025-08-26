@@ -12,6 +12,18 @@ Monorepo managed with [Turborepo](https://turbo.build/) and [pnpm](https://pnpm.
 - `packages/storage` – Prisma client and migrations
 - `packages/shared` – zod schemas, logger, and config utilities
 
+## Infrastructure
+
+> Requires [Docker Compose](https://docs.docker.com/compose/install/) to be installed.
+
+Copy `.env.example` to `.env` and set the `POSTGRES_PASSWORD` value. Then start the supporting services:
+
+```bash
+docker compose -f infra/docker-compose.yml up -d
+```
+
+Data is persisted to the `data/` directory.
+
 ## Development
 
 ```bash
