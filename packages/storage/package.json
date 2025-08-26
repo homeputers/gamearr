@@ -6,6 +6,14 @@
     "build": "echo build storage",
     "dev": "echo dev storage",
     "lint": "echo lint storage",
-    "test": "echo test storage"
+    "test": "echo test storage",
+    "migrate:dev": "prisma migrate dev",
+    "studio": "prisma studio"
+  },
+  "dependencies": {
+    "@prisma/client": "^5.15.0"
+  },
+  "devDependencies": {
+    "prisma": "^5.15.0"
   }
 }
