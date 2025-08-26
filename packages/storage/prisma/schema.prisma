@@ -1,0 +1,64 @@
+// Prisma schema for storage module
+// This schema uses PostgreSQL database
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Platform {
+  id        String     @id @default(cuid())
+  name      String     @unique
+  artifacts Artifact[]
+}
+
+model Library {
+  id    String @id @default(cuid())
+  name  String
+  path  String @unique
+  games Game[]
+}
+
+model Game {
+  id        String   @id @default(cuid())
+  libraryId String
+  library   Library  @relation(fields: [libraryId], references: [id])
+  title     String
+  slug      String   @unique
+  releases  Release[]
+}
+
+model Release {
+  id        String    @id @default(cuid())
+  gameId    String
+  game      Game      @relation(fields: [gameId], references: [id])
+  version   String
+  artifacts Artifact[]
+  createdAt DateTime  @default(now())
+}
+
+model Artifact {
+  id         String    @id @default(cuid())
+  releaseId  String
+  release    Release   @relation(fields: [releaseId], references: [id])
+  platformId String
+  platform   Platform  @relation(fields: [platformId], references: [id])
+  fileName   String
+  fileSize   Int
+  sha256     String    @unique
+  downloads  Download[]
+}
+
+model Download {
+  id         String   @id @default(cuid())
+  artifactId String
+  artifact   Artifact @relation(fields: [artifactId], references: [id])
+  url        String
+  sha256     String?
+  createdAt  DateTime @default(now())
+}
+
