@@ -9,7 +9,10 @@
     "forceConsistentCasingInFileNames": true,
     "baseUrl": ".",
     "paths": {
-      "@gamearr/shared": ["packages/shared/src"]
+      "@gamearr/shared": ["packages/shared/src"],
+      "@gamearr/domain": ["packages/domain/src"],
+      "@gamearr/storage": ["packages/storage/src"],
+      "@gamearr/storage/*": ["packages/storage/*"]
     }
   }
 }

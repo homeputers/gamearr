@@ -15,7 +15,6 @@ model Platform {
   name       String     @unique
   extensions String[]
   libraries  Library[]
-  artifacts  Artifact[]
 }
 
 model Library {
