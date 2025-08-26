@@ -2,10 +2,11 @@
   "name": "@gamearr/domain",
   "version": "0.0.0",
   "private": true,
+  "type": "module",
   "scripts": {
     "build": "echo build domain",
     "dev": "echo dev domain",
     "lint": "echo lint domain",
-    "test": "echo test domain"
+    "test": "tsc -p tsconfig.json && node --test dist/**/*.test.js"
   }
 }
