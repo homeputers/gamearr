@@ -14,7 +14,7 @@ const VALID_ENV = {
 const loadConfig = async () => import(`./config.js?${Date.now()}`);
 
 const setEnv = (env: Record<string, string>) => {
-  process.env = { ...env } as NodeJS.ProcessEnv;
+  process.env = { NODE_ENV: 'test', ...env } as NodeJS.ProcessEnv;
 };
 
 test('parses configuration from env', async () => {
