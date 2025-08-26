@@ -1,0 +1,11 @@
+{
+  "name": "@gamearr/api",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "build": "echo build api",
+    "dev": "echo dev api",
+    "lint": "echo lint api",
+    "test": "echo test api"
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "name": "@gamearr/domain",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "build": "echo build domain",
+    "dev": "echo dev domain",
+    "lint": "echo lint domain",
+    "test": "echo test domain"
+  }
+}

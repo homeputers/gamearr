@@ -1,0 +1,11 @@
+{
+  "name": "@gamearr/shared",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "build": "echo build shared",
+    "dev": "echo dev shared",
+    "lint": "echo lint shared",
+    "test": "echo test shared"
+  }
+}
