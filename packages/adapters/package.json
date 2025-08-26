@@ -1,0 +1,11 @@
+{
+  "name": "@gamearr/adapters",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "build": "echo build adapters",
+    "dev": "echo dev adapters",
+    "lint": "echo lint adapters",
+    "test": "echo test adapters"
+  }
+}

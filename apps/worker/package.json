@@ -1,0 +1,11 @@
+{
+  "name": "@gamearr/worker",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "build": "echo build worker",
+    "dev": "echo dev worker",
+    "lint": "echo lint worker",
+    "test": "echo test worker"
+  }
+}

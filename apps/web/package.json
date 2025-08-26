@@ -1,0 +1,11 @@
+{
+  "name": "@gamearr/web",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "build": "echo build web",
+    "dev": "echo dev web",
+    "lint": "echo lint web",
+    "test": "echo test web"
+  }
+}
