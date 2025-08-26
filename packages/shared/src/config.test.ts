@@ -25,10 +25,11 @@ test('parses configuration from env', async () => {
   process.env = original;
 });
 
-test('throws when required vars are missing', async () => {
+test('returns undefined for missing vars', async () => {
   const original = process.env;
   const { DB_URL, ...rest } = VALID_ENV;
   setEnv(rest);
-  await assert.rejects(loadConfig);
+  const mod = await loadConfig();
+  assert.equal(mod.config.dbUrl, undefined);
   process.env = original;
 });

@@ -4,6 +4,10 @@ import { scanProcessor } from './processors/scan';
 import { hashProcessor } from './processors/hash';
 import { importProcessor } from './processors/import';
 
+if (!config.redisUrl) {
+  throw new Error('REDIS_URL is not set');
+}
+
 const connection = { connection: { url: config.redisUrl } };
 
 export const scanQueue = new Queue('scan', connection);
@@ -14,4 +18,4 @@ new Worker(scanQueue.name, scanProcessor, connection);
 new Worker(hashQueue.name, hashProcessor, connection);
 new Worker(importQueue.name, importProcessor, connection);
 
-logger.info('worker started');
+logger.info({ queues: [scanQueue.name, hashQueue.name, importQueue.name] }, 'worker started');

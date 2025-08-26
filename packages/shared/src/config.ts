@@ -1,13 +1,13 @@
 import { z } from 'zod';
 
 const envSchema = z.object({
-  DB_URL: z.string().url(),
-  REDIS_URL: z.string(),
-  RAWG_KEY: z.string(),
-  IGDB_CLIENT_ID: z.string(),
-  IGDB_CLIENT_SECRET: z.string(),
-  LIB_ROOT: z.string(),
-  DOWNLOADS_ROOT: z.string(),
+  DB_URL: z.string().url().optional(),
+  REDIS_URL: z.string().optional(),
+  RAWG_KEY: z.string().optional(),
+  IGDB_CLIENT_ID: z.string().optional(),
+  IGDB_CLIENT_SECRET: z.string().optional(),
+  LIB_ROOT: z.string().optional(),
+  DOWNLOADS_ROOT: z.string().optional(),
 });
 
 const env = envSchema.parse(process.env);
