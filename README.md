@@ -1,0 +1,2 @@
+# gamarr
+ServArr for games
