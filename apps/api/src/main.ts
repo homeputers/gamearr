@@ -8,6 +8,10 @@ import { AppModule } from './app.module';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
+  app.enableCors({
+    origin: process.env.FRONTEND_URL || 'http://localhost:5173',
+  });
+
   // pino-http's type definitions lag behind the latest pino releases, so we
   // cast our shared logger to `any` to satisfy the expected interface.
   app.use(pinoHttp({ logger: logger as any }));
