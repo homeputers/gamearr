@@ -26,7 +26,7 @@ async function rawgFetch(path: string, params: Record<string, string | number | 
   return res.json();
 }
 
-export async function searchGame({
+async function searchGame({
   title,
   platform,
   year,
@@ -54,7 +54,7 @@ export async function searchGame({
   }));
 }
 
-export async function getGame(id: string): Promise<{
+async function getGame(id: string): Promise<{
   id: string;
   title: string;
   year?: number;
@@ -74,3 +74,6 @@ export async function getGame(id: string): Promise<{
     publishers: (data.publishers || []).map((p: any) => p.name),
   };
 }
+
+// Export the functions directly
+export { searchGame, getGame };

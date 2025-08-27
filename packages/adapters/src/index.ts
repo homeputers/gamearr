@@ -1,3 +1,7 @@
-import * as rawg from './providers/rawg';
+import * as rawgModule from './providers/rawg';
 
-export { rawg };
+// Create and export the rawg object
+export const rawg = {
+  searchGame: rawgModule.searchGame,
+  getGame: rawgModule.getGame
+};
