@@ -5,7 +5,7 @@
   "type": "module",
   "main": "dist/index.js",
   "scripts": {
-    "build": "echo build domain",
+    "build": "tsc -p tsconfig.json",
     "dev": "echo dev domain",
     "lint": "echo lint domain",
     "test": "tsc -p tsconfig.json && node --test dist/**/*.test.js"

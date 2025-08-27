@@ -3,6 +3,7 @@ import { config, logger } from '@gamearr/shared';
 import { scanProcessor } from './processors/scan';
 import { hashProcessor } from './processors/hash';
 import { importProcessor } from './processors/import';
+import { startWatchCompleted } from './watchCompleted.js';
 
 if (!config.redisUrl) {
   throw new Error('REDIS_URL is not set');
@@ -19,3 +20,4 @@ new Worker(hashQueue.name, hashProcessor, connection);
 new Worker(importQueue.name, importProcessor, connection);
 
 logger.info({ queues: [scanQueue.name, hashQueue.name, importQueue.name] }, 'worker started');
+startWatchCompleted();
