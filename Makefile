@@ -3,36 +3,39 @@
 # Variables
 DOCKER_COMPOSE = docker compose -f infra/docker-compose.yml
 
-# Create a symlink to .env file in the infra directory
-.PHONY: ensure-env-link
-ensure-env-link:
+# Create symlinks to .env file in required directories
+.PHONY: ensure-env-links
+ensure-env-links:
 	@if [ ! -L infra/.env ] || [ ! -e infra/.env ]; then \
 		ln -sf "$(PWD)/.env" "$(PWD)/infra/.env"; \
+	fi
+	@if [ ! -L packages/storage/.env ] || [ ! -e packages/storage/.env ]; then \
+		ln -sf "$(PWD)/.env" "$(PWD)/packages/storage/.env"; \
 	fi
 
 # Docker commands
 .PHONY: docker-up
-docker-up: ensure-env-link
+docker-up: ensure-env-links
 	$(DOCKER_COMPOSE) up -d
 
 .PHONY: docker-down
-docker-down: ensure-env-link
+docker-down: ensure-env-links
 	$(DOCKER_COMPOSE) down
 
 .PHONY: docker-restart
 docker-restart: docker-down docker-up
 
 .PHONY: docker-logs
-docker-logs: ensure-env-link
+docker-logs: ensure-env-links
 	$(DOCKER_COMPOSE) logs -f
 
 .PHONY: docker-ps
-docker-ps: ensure-env-link
+docker-ps: ensure-env-links
 	$(DOCKER_COMPOSE) ps
 
 # Database commands
 .PHONY: db-migrate
-db-migrate:
+db-migrate: ensure-env-links
 	pnpm -w storage-generate
 	pnpm --filter @gamearr/storage exec prisma migrate dev
 
@@ -49,6 +52,10 @@ dev:
 build:
 	pnpm -w build
 
+.PHONY: test
+test:
+	pnpm -w test
+
 # Help command
 .PHONY: help
 help:
@@ -62,4 +69,5 @@ help:
 	@echo "  db-studio      - Open Prisma Studio"
 	@echo "  dev            - Start development servers"
 	@echo "  build          - Build the project"
+	@echo "  test           - Run project tests"
 	@echo "  help           - Show this help message"

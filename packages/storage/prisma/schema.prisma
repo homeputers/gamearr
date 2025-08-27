@@ -31,7 +31,10 @@ model Artifact {
   library   Library  @relation(fields: [libraryId], references: [id])
   path      String
   size      Int
-  sha256    String?  @unique
+  crc32     String?
+  sha1      String?
+  format    String?
+  multiPartGroup String? @map("multi_part_group")
 
   @@unique([libraryId, path])
 }
