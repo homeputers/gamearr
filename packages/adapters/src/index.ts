@@ -1,1 +1,1 @@
-export const adapters = {};
+export * as rawg from './providers/rawg';
