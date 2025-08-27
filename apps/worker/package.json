@@ -13,6 +13,7 @@
     "@gamearr/shared": "workspace:*",
     "@gamearr/domain": "workspace:*",
     "@gamearr/storage": "workspace:*",
+    "@gamearr/adapters": "workspace:*",
     "bullmq": "^5.0.0"
   },
   "devDependencies": {

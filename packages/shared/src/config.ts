@@ -32,6 +32,9 @@ const envSchema = z.object({
   IGDB_CLIENT_SECRET: z.string().optional(),
   LIB_ROOT: z.string().optional(),
   DOWNLOADS_ROOT: z.string().optional(),
+  QBITTORRENT_URL: z.string().url().optional(),
+  QBITTORRENT_USERNAME: z.string().optional(),
+  QBITTORRENT_PASSWORD: z.string().optional(),
 });
 
 const env = envSchema.parse(process.env);
@@ -47,6 +50,11 @@ export const config = {
   paths: {
     libRoot: env.LIB_ROOT,
     downloadsRoot: env.DOWNLOADS_ROOT,
+  },
+  qbittorrent: {
+    url: env.QBITTORRENT_URL || 'http://localhost:8080',
+    username: env.QBITTORRENT_USERNAME || 'admin',
+    password: env.QBITTORRENT_PASSWORD || 'adminadmin',
   },
 };
 
