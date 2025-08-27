@@ -11,6 +11,7 @@
     "test": "echo test adapters"
   },
   "dependencies": {
-    "fast-xml-parser": "^5.2.5"
+    "fast-xml-parser": "^5.2.5",
+    "@gamearr/domain": "workspace:*"
   }
 }
