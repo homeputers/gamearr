@@ -2,6 +2,7 @@ import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { BrowserRouter, Link, Route, Routes } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import './index.css';
 import { Libraries } from './pages/Libraries';
 import { Unmatched } from './pages/Unmatched';
 import { Games } from './pages/Games';
@@ -14,13 +15,25 @@ const queryClient = new QueryClient();
 function App() {
   return (
     <BrowserRouter>
-      <nav className="p-2 flex gap-4 bg-gray-100">
-        <Link to="/libraries">Libraries</Link>
-        <Link to="/unmatched">Unmatched</Link>
-        <Link to="/games">Games</Link>
-        <Link to="/activity">Activity</Link>
-        <Link to="/downloads">Downloads</Link>
-        <Link to="/settings">Settings</Link>
+      <nav className="p-4 flex gap-4 bg-white shadow">
+        <Link className="text-blue-600 hover:underline" to="/libraries">
+          Libraries
+        </Link>
+        <Link className="text-blue-600 hover:underline" to="/unmatched">
+          Unmatched
+        </Link>
+        <Link className="text-blue-600 hover:underline" to="/games">
+          Games
+        </Link>
+        <Link className="text-blue-600 hover:underline" to="/activity">
+          Activity
+        </Link>
+        <Link className="text-blue-600 hover:underline" to="/downloads">
+          Downloads
+        </Link>
+        <Link className="text-blue-600 hover:underline" to="/settings">
+          Settings
+        </Link>
       </nav>
       <Routes>
         <Route path="/libraries" element={<Libraries />} />
