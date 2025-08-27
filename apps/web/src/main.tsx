@@ -1,69 +1,44 @@
-import { useEffect, useState } from 'react';
-import { Settings } from './Settings';
+import React from 'react';
+import ReactDOM from 'react-dom/client';
+import { BrowserRouter, Link, Route, Routes } from 'react-router-dom';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { Libraries } from './pages/Libraries';
+import { Unmatched } from './pages/Unmatched';
+import { Games } from './pages/Games';
+import { Activity } from './pages/Activity';
+import { Downloads } from './pages/Downloads';
+import { Settings } from './pages/Settings';
 
-type Artifact = { id: string; path: string };
-type SearchResult = { id: string; title: string };
+const queryClient = new QueryClient();
 
-export const App = () => {
-  const [artifacts, setArtifacts] = useState<Artifact[]>([]);
-  const [selected, setSelected] = useState<Artifact | null>(null);
-  const [results, setResults] = useState<SearchResult[]>([]);
-  const [showSettings, setShowSettings] = useState(false);
+function App() {
+  return (
+    <BrowserRouter>
+      <nav className="p-2 flex gap-4 bg-gray-100">
+        <Link to="/libraries">Libraries</Link>
+        <Link to="/unmatched">Unmatched</Link>
+        <Link to="/games">Games</Link>
+        <Link to="/activity">Activity</Link>
+        <Link to="/downloads">Downloads</Link>
+        <Link to="/settings">Settings</Link>
+      </nav>
+      <Routes>
+        <Route path="/libraries" element={<Libraries />} />
+        <Route path="/unmatched" element={<Unmatched />} />
+        <Route path="/games" element={<Games />} />
+        <Route path="/activity" element={<Activity />} />
+        <Route path="/downloads" element={<Downloads />} />
+        <Route path="/settings" element={<Settings />} />
+        <Route path="*" element={<Libraries />} />
+      </Routes>
+    </BrowserRouter>
+  );
+}
 
-  useEffect(() => {
-    fetch('/artifacts/unmatched')
-      .then((r) => r.json())
-      .then(setArtifacts);
-  }, []);
-
-  const open = async (a: Artifact) => {
-    setSelected(a);
-    const name = a.path.split('/').pop() || '';
-    const res = await fetch(
-      `/metadata/search?q=${encodeURIComponent(name)}&platform=`
-    ).then((r) => r.json());
-    setResults(res);
-  };
-
-  const approve = async (artifactId: string, providerId: string) => {
-    await fetch(`/artifacts/${artifactId}/match`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ provider: 'rawg', providerId }),
-    });
-    setArtifacts(artifacts.filter((a) => a.id !== artifactId));
-    setSelected(null);
-    setResults([]);
-  };
-
-    return (
-      <div>
-        <button onClick={() => setShowSettings(!showSettings)}>Settings</button>
-        {showSettings && <Settings />}
-        <div style={{ display: 'flex' }}>
-          <div style={{ flex: 1 }}>
-            <ul>
-              {artifacts.map((a) => (
-                <li key={a.id} onClick={() => open(a)} style={{ cursor: 'pointer' }}>
-                  {a.path}
-                </li>
-              ))}
-            </ul>
-          </div>
-          {selected && (
-            <div style={{ width: '400px', borderLeft: '1px solid #ccc', padding: '1rem' }}>
-              <h2>{selected.path}</h2>
-              <ul>
-                {results.map((r) => (
-                  <li key={r.id}>
-                    {r.title}{' '}
-                    <button onClick={() => approve(selected.id, r.id)}>Approve</button>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          )}
-        </div>
-      </div>
-    );
-  };
+ReactDOM.createRoot(document.getElementById('root')!).render(
+  <React.StrictMode>
+    <QueryClientProvider client={queryClient}>
+      <App />
+    </QueryClientProvider>
+  </React.StrictMode>,
+);
