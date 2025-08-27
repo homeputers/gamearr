@@ -62,6 +62,39 @@ export async function hashProcessor(job: Job<HashJob>) {
     where: { id: artifactId },
     data,
   });
+
+  const datEntry = await prisma.datEntry.findFirst({
+    where: {
+      platformId: artifact.library.platformId,
+      OR: [{ hashCrc: crc32 }, { hashSha1: sha1 }],
+    },
+  });
+  if (datEntry) {
+    let game = await prisma.game.findFirst({
+      where: { provider: datEntry.source, providerId: datEntry.canonicalName },
+    });
+    if (!game) {
+      game = await prisma.game.create({
+        data: {
+          title: datEntry.canonicalName,
+          provider: datEntry.source,
+          providerId: datEntry.canonicalName,
+        },
+      });
+    }
+    let release = await prisma.release.findFirst({
+      where: { gameId: game.id, region: datEntry.region ?? undefined, language: datEntry.languages ?? undefined },
+    });
+    if (!release) {
+      release = await prisma.release.create({
+        data: { gameId: game.id, region: datEntry.region, language: datEntry.languages },
+      });
+    }
+    await prisma.artifact.update({
+      where: { id: artifactId },
+      data: { releaseId: release.id },
+    });
+  }
 }
 
 export default hashProcessor;

@@ -2,6 +2,7 @@ import * as rawgModule from './providers/rawg';
 import * as igdbModule from './providers/igdb';
 import * as qbittorrentModule from './downloads/qbittorrent';
 import * as emulationstationModule from './exporters/emulationstation';
+import * as nointroDatModule from './dat/nointro';
 
 // Create and export the rawg object
 export const rawg = {
@@ -21,4 +22,11 @@ export const qbittorrent = {
 
 export const emulationstation = {
   exportAll: emulationstationModule.exportEmulationStation,
+};
+
+export const dat = {
+  nointro: {
+    loadDat: nointroDatModule.loadNointroDat,
+    parseDat: nointroDatModule.parseNointroDat,
+  },
 };
