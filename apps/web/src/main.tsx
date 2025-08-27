@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { Settings } from './Settings';
 
 type Artifact = { id: string; path: string };
 type SearchResult = { id: string; title: string };
@@ -7,6 +8,7 @@ export const App = () => {
   const [artifacts, setArtifacts] = useState<Artifact[]>([]);
   const [selected, setSelected] = useState<Artifact | null>(null);
   const [results, setResults] = useState<SearchResult[]>([]);
+  const [showSettings, setShowSettings] = useState(false);
 
   useEffect(() => {
     fetch('/artifacts/unmatched')
@@ -34,30 +36,34 @@ export const App = () => {
     setResults([]);
   };
 
-  return (
-    <div style={{ display: 'flex' }}>
-      <div style={{ flex: 1 }}>
-        <ul>
-          {artifacts.map((a) => (
-            <li key={a.id} onClick={() => open(a)} style={{ cursor: 'pointer' }}>
-              {a.path}
-            </li>
-          ))}
-        </ul>
-      </div>
-      {selected && (
-        <div style={{ width: '400px', borderLeft: '1px solid #ccc', padding: '1rem' }}>
-          <h2>{selected.path}</h2>
-          <ul>
-            {results.map((r) => (
-              <li key={r.id}>
-                {r.title}{' '}
-                <button onClick={() => approve(selected.id, r.id)}>Approve</button>
-              </li>
-            ))}
-          </ul>
+    return (
+      <div>
+        <button onClick={() => setShowSettings(!showSettings)}>Settings</button>
+        {showSettings && <Settings />}
+        <div style={{ display: 'flex' }}>
+          <div style={{ flex: 1 }}>
+            <ul>
+              {artifacts.map((a) => (
+                <li key={a.id} onClick={() => open(a)} style={{ cursor: 'pointer' }}>
+                  {a.path}
+                </li>
+              ))}
+            </ul>
+          </div>
+          {selected && (
+            <div style={{ width: '400px', borderLeft: '1px solid #ccc', padding: '1rem' }}>
+              <h2>{selected.path}</h2>
+              <ul>
+                {results.map((r) => (
+                  <li key={r.id}>
+                    {r.title}{' '}
+                    <button onClick={() => approve(selected.id, r.id)}>Approve</button>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
         </div>
-      )}
-    </div>
-  );
-};
+      </div>
+    );
+  };

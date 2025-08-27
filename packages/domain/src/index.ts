@@ -5,3 +5,4 @@ export * from './parsers/cue.js';
 export * from './parsers/gdi.js';
 export * from './organize/renderTemplate.js';
 export * from './organize/moveArtifact.js';
+export * from './organize/oneGameOneRom.js';
