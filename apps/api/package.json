@@ -10,6 +10,7 @@
     "test": "echo test api"
   },
   "dependencies": {
+    "@gamearr/adapters": "workspace:*",
     "@gamearr/shared": "workspace:*",
     "@gamearr/storage": "workspace:*",
     "@nestjs/common": "^10.0.0",
