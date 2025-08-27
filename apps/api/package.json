@@ -7,7 +7,7 @@
     "build": "tsc -p tsconfig.json",
     "dev": "tsx watch src/main.ts",
     "lint": "echo lint api",
-    "test": "tsc -p tsconfig.json && node --test dist"
+    "test": "tsc -p tsconfig.json && node --test dist/**/*.test.js"
   },
   "dependencies": {
     "@gamearr/adapters": "workspace:*",
