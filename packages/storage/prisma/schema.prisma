@@ -15,6 +15,7 @@ model Platform {
   name       String     @unique
   extensions String[]
   libraries  Library[]
+  datEntries DatEntry[]
 }
 
 model Library {
@@ -58,5 +59,21 @@ model Release {
   region   String?
   language String?
   artifacts Artifact[]
+}
+
+model DatEntry {
+  id             String   @id @default(cuid())
+  hashCrc        String?  @map("hash_crc")
+  hashSha1       String?  @map("hash_sha1")
+  canonicalName  String   @map("canonical_name")
+  region         String?
+  languages      String?
+  serial         String?
+  source         String
+  platformId     String
+  platform       Platform @relation(fields: [platformId], references: [id])
+
+  @@index([hashCrc])
+  @@index([hashSha1])
 }
 
