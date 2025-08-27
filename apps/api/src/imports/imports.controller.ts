@@ -6,7 +6,7 @@ export class ImportsController {
   constructor(private readonly service: ImportsService) {}
 
   @Post('organize')
-  organize(@Body() body: { artifactId: string; template: string }) {
-    return this.service.organize(body.artifactId, body.template);
+  organize(@Body() body: { artifactId: string; template: string; romsRoot?: string }) {
+    return this.service.organize(body.artifactId, body.template, body.romsRoot);
   }
 }
