@@ -52,6 +52,10 @@ dev:
 build:
 	pnpm -w build
 
+.PHONY: test
+test:
+	pnpm -w test
+
 # Help command
 .PHONY: help
 help:
@@ -65,4 +69,5 @@ help:
 	@echo "  db-studio      - Open Prisma Studio"
 	@echo "  dev            - Start development servers"
 	@echo "  build          - Build the project"
+	@echo "  test           - Run project tests"
 	@echo "  help           - Show this help message"
