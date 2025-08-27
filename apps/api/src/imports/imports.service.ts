@@ -1,5 +1,6 @@
 import { Injectable, NotFoundException, Inject } from '@nestjs/common';
 import { moveArtifact } from '@gamearr/domain';
+import { readImportActivity } from '@gamearr/shared';
 // Import Prisma dynamically to handle ESM/CommonJS compatibility
 import pkg from '@prisma/client';
 const { PrismaClient } = pkg;
@@ -24,5 +25,9 @@ export class ImportsService {
     }
     const path = await moveArtifact(artifact as any, template, romsRoot);
     return { path };
+  }
+
+  async activity() {
+    return readImportActivity();
   }
 }
