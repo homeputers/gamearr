@@ -35,7 +35,28 @@ model Artifact {
   sha1      String?
   format    String?
   multiPartGroup String? @map("multi_part_group")
+  releaseId String?
+  release   Release? @relation(fields: [releaseId], references: [id])
 
   @@unique([libraryId, path])
+}
+
+model Game {
+  id         String    @id @default(cuid())
+  title      String
+  provider   String
+  providerId String
+  releases   Release[]
+
+  @@unique([provider, providerId])
+}
+
+model Release {
+  id       String   @id @default(cuid())
+  gameId   String
+  game     Game     @relation(fields: [gameId], references: [id])
+  region   String?
+  language String?
+  artifacts Artifact[]
 }
 
