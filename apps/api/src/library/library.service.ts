@@ -5,13 +5,12 @@ import { config } from '@gamearr/shared';
 
 @Injectable()
 export class LibraryService {
-  private readonly scanQueue: Queue;
+  private readonly scanQueue?: Queue;
 
   constructor(private readonly prisma: PrismaClient) {
-    if (!config.redisUrl) {
-      throw new Error('REDIS_URL is not set');
+    if (config.redisUrl) {
+      this.scanQueue = new Queue('scan', { connection: { url: config.redisUrl } });
     }
-    this.scanQueue = new Queue('scan', { connection: { url: config.redisUrl } });
   }
 
   create(data: { path: string; platformId: string }) {
@@ -23,7 +22,9 @@ export class LibraryService {
   }
 
   async scan(id: string) {
-    await this.scanQueue.add('scan', { libraryId: id });
+    if (this.scanQueue) {
+      await this.scanQueue.add('scan', { libraryId: id });
+    }
     return { status: 'queued' };
   }
 }

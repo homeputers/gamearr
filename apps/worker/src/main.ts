@@ -9,7 +9,8 @@ import { startWatchQbittorrent } from './watchQbittorrent.js';
 import { startDatRefresh } from './watchDat.js';
 
 if (!config.redisUrl) {
-  throw new Error('REDIS_URL is not set');
+  logger.warn('REDIS_URL is not set, worker disabled');
+  process.exit(0);
 }
 
 const connection = { connection: { url: config.redisUrl } };

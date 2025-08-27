@@ -6,12 +6,9 @@ import { walk } from '@gamearr/domain';
 import { promises as fs } from 'node:fs';
 import path from 'node:path';
 
-if (!config.redisUrl) {
-  throw new Error('REDIS_URL is not set');
-}
-const hashQueue = new Queue('hash', {
-  connection: { url: config.redisUrl },
-});
+const hashQueue = config.redisUrl
+  ? new Queue('hash', { connection: { url: config.redisUrl } })
+  : undefined;
 
 export async function scanProcessor(job: Job<{ libraryId: string }>) {
   logger.info({ payload: job.data }, 'scan job');
@@ -37,7 +34,9 @@ export async function scanProcessor(job: Job<{ libraryId: string }>) {
       const artifact = await prisma.artifact.create({
         data: { libraryId, path: rel, size: stat.size },
       });
-      await hashQueue.add('hash', { artifactId: artifact.id });
+      if (hashQueue) {
+        await hashQueue.add('hash', { artifactId: artifact.id });
+      }
     } else if (existing.size !== stat.size) {
       await prisma.artifact.update({
         where: { id: existing.id },
