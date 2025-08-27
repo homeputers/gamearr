@@ -7,6 +7,7 @@ import { MetadataModule } from './metadata/metadata.module';
 import { MatchModule } from './match/match.module';
 import { ImportsModule } from './imports/imports.module';
 import { DownloadsModule } from './downloads/downloads.module';
+import { ExportsModule } from './exports/exports.module';
 
 @Module({
   imports: [
@@ -18,6 +19,7 @@ import { DownloadsModule } from './downloads/downloads.module';
     MatchModule,
     ImportsModule,
     DownloadsModule,
+    ExportsModule,
   ],
 })
 export class AppModule {}

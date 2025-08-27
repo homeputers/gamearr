@@ -59,6 +59,8 @@ async function getGame(id: string): Promise<{
   title: string;
   year?: number;
   coverUrl?: string;
+  description?: string;
+  videoUrl?: string;
   screenshots: string[];
   genres: string[];
   publishers: string[];
@@ -69,6 +71,8 @@ async function getGame(id: string): Promise<{
     title: data.name,
     year: data.released ? parseInt(data.released.slice(0, 4)) : undefined,
     coverUrl: data.background_image,
+    description: data.description_raw,
+    videoUrl: data.clip?.clip,
     screenshots: (data.short_screenshots || []).map((s: any) => s.image),
     genres: (data.genres || []).map((g: any) => g.name),
     publishers: (data.publishers || []).map((p: any) => p.name),
