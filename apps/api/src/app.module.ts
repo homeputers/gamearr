@@ -6,6 +6,7 @@ import { LibraryModule } from './library/library.module';
 import { MetadataModule } from './metadata/metadata.module';
 import { MatchModule } from './match/match.module';
 import { ImportsModule } from './imports/imports.module';
+import { DownloadsModule } from './downloads/downloads.module';
 
 @Module({
   imports: [
@@ -16,6 +17,7 @@ import { ImportsModule } from './imports/imports.module';
     MetadataModule,
     MatchModule,
     ImportsModule,
+    DownloadsModule,
   ],
 })
 export class AppModule {}

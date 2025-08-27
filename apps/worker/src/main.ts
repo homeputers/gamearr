@@ -4,6 +4,7 @@ import { scanProcessor } from './processors/scan';
 import { hashProcessor } from './processors/hash';
 import { importProcessor } from './processors/import';
 import { startWatchCompleted } from './watchCompleted.js';
+import { startWatchQbittorrent } from './watchQbittorrent.js';
 
 if (!config.redisUrl) {
   throw new Error('REDIS_URL is not set');
@@ -21,3 +22,4 @@ new Worker(importQueue.name, importProcessor, connection);
 
 logger.info({ queues: [scanQueue.name, hashQueue.name, importQueue.name] }, 'worker started');
 startWatchCompleted();
+startWatchQbittorrent();
