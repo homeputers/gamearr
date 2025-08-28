@@ -1,30 +1,31 @@
 # Installing
 
+The application is intended to be deployed using a Docker image built by our
+GitHub Actions pipeline. Images are not yet pushed to a public registry, so you
+must currently download the workflow artifact or build the image locally. Once a
+registry is configured you will be able to `docker pull` the prebuilt image
+instead of building it yourself.
+
 ## Prerequisites
 
-- [Node.js](https://nodejs.org/) 18+
-- [pnpm](https://pnpm.io/)
+- [Docker](https://docs.docker.com/engine/)
 - [Docker Compose](https://docs.docker.com/compose/)
 
 ## Steps
 
-1. Clone the repository and change into its directory.
-2. Copy `.env.example` to `.env` and set values.
-3. Install dependencies:
+1. Copy `.env.example` to `.env` and set values for your environment.
+2. Build the Docker image (skip this step once images are published):
    ```bash
-   pnpm -w install
+   docker compose -f docker-compose.app.yml build
    ```
-4. Start supporting services:
+   This uses the same Dockerfile and configuration as the CI pipeline.
+3. Start the stack:
    ```bash
-   pnpm dev:infra
+   docker compose -f docker-compose.app.yml up -d
    ```
-5. Run database migrations:
-   ```bash
-   pnpm migrate
-   ```
-6. Build the apps:
-   ```bash
-   pnpm -w build
-   ```
+   The command launches the API, worker, and web services using the built
+   images.
 
-The built artifacts reside in each app's `dist/` folder. Start the API or worker using Node or a process manager of your choice.
+When images become available in a registry, replace step 2 with a `docker pull`
+for the appropriate image reference.
+
