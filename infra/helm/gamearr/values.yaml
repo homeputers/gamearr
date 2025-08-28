@@ -1,0 +1,61 @@
+api:
+  image: node:20-alpine
+  replicas: 1
+  service:
+    type: ClusterIP
+    port: 3000
+  hpa:
+    enabled: true
+    minReplicas: 1
+    maxReplicas: 3
+    targetCPUUtilizationPercentage: 80
+worker:
+  image: node:20-alpine
+  replicas: 1
+  hpa:
+    enabled: true
+    minReplicas: 1
+    maxReplicas: 3
+    targetCPUUtilizationPercentage: 80
+web:
+  image: node:20-alpine
+  replicas: 1
+  service:
+    type: ClusterIP
+    port: 80
+    targetPort: 5173
+  hpa:
+    enabled: true
+    minReplicas: 1
+    maxReplicas: 3
+    targetCPUUtilizationPercentage: 80
+postgres:
+  enabled: true
+  image: postgres:16
+  user: gamearr
+  password: changeme
+  database: gamearr
+  service:
+    port: 5432
+  persistence:
+    enabled: true
+    size: 10Gi
+    storageClass: ""
+redis:
+  image: redis:7
+  service:
+    port: 6379
+  persistence:
+    enabled: true
+    size: 1Gi
+    storageClass: ""
+ingress:
+  enabled: false
+  className: ""
+  annotations: {}
+  host: gamearr.local
+  tls:
+    enabled: false
+    secretName: ""
+external:
+  dbUrl: ""

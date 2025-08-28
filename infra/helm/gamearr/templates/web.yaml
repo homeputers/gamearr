@@ -1,0 +1,73 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "gamearr.fullname" . }}-web
+spec:
+  replicas: {{ .Values.web.replicas }}
+  selector:
+    matchLabels:
+      app: {{ include "gamearr.fullname" . }}-web
+  template:
+    metadata:
+      labels:
+        app: {{ include "gamearr.fullname" . }}-web
+    spec:
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        runAsGroup: 1000
+        fsGroup: 1000
+      containers:
+        - name: web
+          image: {{ .Values.web.image }}
+          envFrom:
+            - secretRef:
+                name: {{ include "gamearr.fullname" . }}-env
+          ports:
+            - containerPort: {{ .Values.web.service.targetPort }}
+          livenessProbe:
+            httpGet:
+              path: /
+              port: {{ .Values.web.service.targetPort }}
+            initialDelaySeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /
+              port: {{ .Values.web.service.targetPort }}
+            initialDelaySeconds: 10
+          securityContext:
+            allowPrivilegeEscalation: false
+          resources: {{ toYaml .Values.web.resources | nindent 12 }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "gamearr.fullname" . }}-web
+spec:
+  type: {{ .Values.web.service.type }}
+  ports:
+    - port: {{ .Values.web.service.port }}
+      targetPort: {{ .Values.web.service.targetPort }}
+  selector:
+    app: {{ include "gamearr.fullname" . }}-web
+---
+{{- if .Values.web.hpa.enabled }}
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: {{ include "gamearr.fullname" . }}-web
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: {{ include "gamearr.fullname" . }}-web
+  minReplicas: {{ .Values.web.hpa.minReplicas }}
+  maxReplicas: {{ .Values.web.hpa.maxReplicas }}
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: {{ .Values.web.hpa.targetCPUUtilizationPercentage }}
+{{- end }}
