@@ -1,7 +1,7 @@
 import { Injectable, NotFoundException, Inject } from '@nestjs/common';
 import { PrismaClient } from '@prisma/client';
 import { rawg } from '@gamearr/adapters';
-import { PRISMA_CLIENT } from '../prisma/prisma.module';
+import { PrismaService } from '../prisma/prisma.service.js';
 
 @Injectable()
 export class MatchService {
@@ -9,7 +9,7 @@ export class MatchService {
     rawg,
   };
 
-  constructor(@Inject(PRISMA_CLIENT) private readonly prisma: PrismaClient) {}
+  constructor(@Inject(PrismaService) private readonly prisma: PrismaService) {}
 
   findUnmatched(skip: number, take: number) {
     return this.prisma.artifact.findMany({

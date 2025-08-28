@@ -2,13 +2,13 @@ import { Injectable, Inject } from '@nestjs/common';
 import { PrismaClient } from '@prisma/client';
 import { Queue } from 'bullmq';
 import { config } from '@gamearr/shared';
-import { PRISMA_CLIENT } from '../prisma/prisma.module';
+import { PrismaService } from '../prisma/prisma.service.js';
 
 @Injectable()
 export class LibraryService {
   private readonly scanQueue?: Queue;
 
-  constructor(@Inject(PRISMA_CLIENT) private readonly prisma: PrismaClient) {
+  constructor(@Inject(PrismaService) private readonly prisma: PrismaService) {
     if (config.redisUrl) {
       this.scanQueue = new Queue('scan', { connection: { url: config.redisUrl } });
     }
