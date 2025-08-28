@@ -36,3 +36,7 @@ pnpm -w dev
 ```bash
 pnpm -w build
 ```
+
+## Documentation
+
+Additional guides and references live in the [docs](./docs) directory.
