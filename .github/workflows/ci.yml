@@ -1,0 +1,26 @@
+name: CI
+
+on:
+  push:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v2
+        with:
+          version: 9
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'pnpm'
+      - run: pnpm install
+      - run: pnpm turbo build
+      - run: pnpm test
+      - name: Build Docker images
+        if: github.ref == 'refs/heads/main'
+        env:
+          POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
+          DATA_ROOT: ./data
+        run: docker compose -f infra/docker-compose.yml -f docker-compose.app.yml build
