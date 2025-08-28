@@ -1,5 +1,9 @@
 # gamarr
 
+[![CI](https://github.com/OWNER/gamarr/actions/workflows/ci.yml/badge.svg)](https://github.com/OWNER/gamarr/actions/workflows/ci.yml)
+[![Docker](https://img.shields.io/docker/pulls/OWNER/gamarr?logo=docker)](https://hub.docker.com/r/OWNER/gamarr)
+[![Docs](https://img.shields.io/badge/docs-available-blue.svg)](./docs)
+
 Monorepo managed with [Turborepo](https://turbo.build/) and [pnpm](https://pnpm.io/).
 
 ## Workspaces
