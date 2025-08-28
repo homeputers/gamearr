@@ -21,6 +21,9 @@
   "devDependencies": {
     "turbo": "^2.0.0",
     "typescript": "^5.4.0",
-    "openapi-typescript": "^6.7.0"
+    "openapi-typescript": "^6.7.0",
+    "@changesets/cli": "^2.27.1",
+    "@changesets/changelog-git": "^0.2.1",
+    "conventional-changelog-cli": "^5.0.0"
   }
 }

@@ -1,0 +1,36 @@
+name: Release
+
+on:
+  release:
+    types: [created]
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write
+
+jobs:
+  changelog:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: pnpm/action-setup@v2
+        with:
+          version: 9
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'pnpm'
+      - name: Apply version changes
+        run: pnpm changeset version
+      - run: pnpm install
+      - name: Generate changelog
+        run: npx conventional-changelog-cli -p angular -i CHANGELOG.md -s
+      - name: Commit changelog
+        uses: stefanzweifel/git-auto-commit-action@v4
+        with:
+          commit_message: 'chore(release): update changelog'
+          file_pattern: CHANGELOG.md
