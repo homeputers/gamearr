@@ -8,7 +8,6 @@ COPY apps ./apps
 
 RUN corepack enable \
     && pnpm install \
-    && pnpm --filter @gamearr/api build
+    && pnpm --filter @gamearr/worker build
 
-EXPOSE 3000
-CMD ["node", "apps/api/dist/main.js"]
+CMD ["node", "apps/worker/dist/main.js"]

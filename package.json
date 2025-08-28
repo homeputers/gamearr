@@ -8,6 +8,12 @@
     "dev": "turbo run dev",
     "lint": "turbo run lint",
     "test": "turbo run test",
+    "dev:api": "pnpm --filter @gamearr/api dev",
+    "dev:worker": "pnpm --filter @gamearr/worker dev",
+    "dev:web": "pnpm --filter @gamearr/web dev -- --host",
+    "dev:infra": "docker compose -f infra/docker-compose.yml up -d",
+    "migrate": "pnpm --filter @gamearr/storage migrate:dev",
+    "studio": "pnpm --filter @gamearr/storage studio",
     "storage-generate": "pnpm --filter @gamearr/storage exec prisma generate",
     "postinstall": "pnpm storage-generate"
   },
