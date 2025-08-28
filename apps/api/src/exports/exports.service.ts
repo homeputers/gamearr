@@ -1,14 +1,15 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Inject } from '@nestjs/common';
 import { PrismaClient } from '@prisma/client';
 import { emulationstation } from '@gamearr/adapters';
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import { mkdtemp } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
+import { PRISMA_CLIENT } from '../prisma/prisma.module';
 
 @Injectable()
 export class ExportsService {
-  constructor(private readonly prisma: PrismaClient) {}
+  constructor(@Inject(PRISMA_CLIENT) private readonly prisma: PrismaClient) {}
 
   async emulationstation() {
     const tmp = await mkdtemp(path.join(tmpdir(), 'es-export-'));

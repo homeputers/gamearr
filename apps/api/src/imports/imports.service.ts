@@ -1,12 +1,8 @@
 import { Injectable, NotFoundException, Inject } from '@nestjs/common';
 import { moveArtifact } from '@gamearr/domain';
 import { readImportActivity } from '@gamearr/shared';
-// Import Prisma dynamically to handle ESM/CommonJS compatibility
-import pkg from '@prisma/client';
-const { PrismaClient } = pkg;
-
-// Create a token for dependency injection
-export const PRISMA_CLIENT = 'PRISMA_CLIENT';
+// Import the shared Prisma DI token
+import { PRISMA_CLIENT } from '../prisma/prisma.module';
 
 @Injectable()
 export class ImportsService {

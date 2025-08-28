@@ -3,9 +3,12 @@ import { NestFactory } from '@nestjs/core';
 import pinoHttp from 'pino-http';
 import type { Request, Response, NextFunction } from 'express';
 import { logger, withRequestId } from '@gamearr/shared';
-import { AppModule } from './app.module';
 
 async function bootstrap() {
+  // In ESM, static imports are hoisted and executed before this module body.
+  // Use a dynamic import to ensure reflect-metadata is loaded before AppModule
+  // and its decorators are evaluated.
+  const { AppModule } = await import('./app.module');
   const app = await NestFactory.create(AppModule);
 
   app.enableCors({

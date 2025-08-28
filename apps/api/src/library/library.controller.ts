@@ -1,9 +1,9 @@
-import { Body, Controller, Get, Param, Post } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, Inject } from '@nestjs/common';
 import { LibraryService } from './library.service';
 
 @Controller('libraries')
 export class LibraryController {
-  constructor(private readonly service: LibraryService) {}
+  constructor(@Inject(LibraryService) private readonly service: LibraryService) {}
 
   @Post()
   create(@Body() body: { path: string; platformId: string }) {

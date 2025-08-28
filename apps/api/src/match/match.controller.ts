@@ -1,9 +1,9 @@
-import { Body, Controller, Get, Param, Post, Query } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, Query, Inject } from '@nestjs/common';
 import { MatchService } from './match.service';
 
 @Controller('artifacts')
 export class MatchController {
-  constructor(private readonly service: MatchService) {}
+  constructor(@Inject(MatchService) private readonly service: MatchService) {}
 
   @Get('unmatched')
   getUnmatched(@Query('page') page = '1', @Query('limit') limit = '50') {
