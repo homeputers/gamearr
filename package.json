@@ -15,10 +15,12 @@
     "migrate": "pnpm --filter @gamearr/storage migrate:dev",
     "studio": "pnpm --filter @gamearr/storage studio",
     "storage-generate": "pnpm --filter @gamearr/storage exec prisma generate",
-    "postinstall": "pnpm storage-generate"
+    "postinstall": "pnpm storage-generate",
+    "openapi": "pnpm --filter @gamearr/api openapi && openapi-typescript docs/openapi.json -o packages/sdk/src/index.ts"
   },
   "devDependencies": {
     "turbo": "^2.0.0",
-    "typescript": "^5.4.0"
+    "typescript": "^5.4.0",
+    "openapi-typescript": "^6.7.0"
   }
 }
