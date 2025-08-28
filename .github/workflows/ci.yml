@@ -21,4 +21,7 @@ jobs:
       - run: pnpm test
       - name: Build Docker images
         if: github.event_name != 'pull_request'
-        run: docker compose -f docker-compose.app.yml build
+        env:
+          POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
+          DATA_ROOT: ./data
+        run: docker compose -f infra/docker-compose.yml -f docker-compose.app.yml build
