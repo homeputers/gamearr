@@ -2,7 +2,7 @@ import 'reflect-metadata';
 import { NestFactory } from '@nestjs/core';
 import pinoHttp from 'pino-http';
 import type { Request, Response, NextFunction } from 'express';
-import { logger, withRequestId } from '@gamearr/shared';
+import { logger, withCorrelationId } from '@gamearr/shared';
 
 async function bootstrap() {
   // In ESM, static imports are hoisted and executed before this module body.
@@ -20,7 +20,7 @@ async function bootstrap() {
   app.use(pinoHttp({ logger: logger as any }));
 
   app.use((req: Request, _res: Response, next: NextFunction) =>
-    withRequestId(() => next(), (req as any).id),
+    withCorrelationId(() => next(), (req as any).id),
   );
   await app.listen(3000);
 }
