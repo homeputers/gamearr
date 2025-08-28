@@ -1,7 +1,7 @@
 services:
   api:
     build:
-      context: .
+      context: ../
       dockerfile: apps/api/Dockerfile
     environment:
       DB_URL: postgres://gamearr:${POSTGRES_PASSWORD}@postgres:5432/gamearr
@@ -14,7 +14,7 @@ services:
       - "3000:3000"
   worker:
     build:
-      context: .
+      context: ../
       dockerfile: apps/worker/Dockerfile
     environment:
       DB_URL: postgres://gamearr:${POSTGRES_PASSWORD}@postgres:5432/gamearr
@@ -24,7 +24,7 @@ services:
       - redis
   web:
     build:
-      context: .
+      context: ../
       dockerfile: apps/web/Dockerfile
     environment:
       VITE_API_URL: http://api:3000
