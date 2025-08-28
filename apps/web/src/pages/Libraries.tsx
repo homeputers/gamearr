@@ -1,27 +1,33 @@
 import { useState } from 'react';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { api } from '../api';
+import { useQueryClient } from '@tanstack/react-query';
+import { useApiQuery, useApiMutation } from '../lib/api';
 import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
 
 export function Libraries() {
   const queryClient = useQueryClient();
-  const { data } = useQuery({ queryKey: ['libraries'], queryFn: api.listLibraries });
+  const { data } = useApiQuery<any[]>({ queryKey: ['libraries'], path: '/libraries' });
   const [path, setPath] = useState('');
   const [platformId, setPlatformId] = useState('');
 
-  const addMutation = useMutation({
-    mutationFn: () => api.addLibrary({ path, platformId }),
-    onSuccess: () => {
-      setPath('');
-      setPlatformId('');
-      queryClient.invalidateQueries({ queryKey: ['libraries'] });
+  const addMutation = useApiMutation<any, { path: string; platformId: string }>(
+    (body) => ({
+      path: '/libraries',
+      init: { method: 'POST', body: JSON.stringify(body) },
+    }),
+    {
+      onSuccess: () => {
+        setPath('');
+        setPlatformId('');
+        queryClient.invalidateQueries({ queryKey: ['libraries'] });
+      },
     },
-  });
+  );
 
-  const scanMutation = useMutation({
-    mutationFn: (id: string) => api.scanLibrary(id),
-  });
+  const scanMutation = useApiMutation<any, string>((id) => ({
+    path: `/libraries/${id}/scan`,
+    init: { method: 'POST', body: JSON.stringify({}) },
+  }));
 
   return (
     <div className="p-4">
