@@ -1,5 +1,5 @@
 import { Queue, Worker } from 'bullmq';
-import { config, logger } from '@gamearr/shared';
+import { config, logger, withCorrelationId } from '@gamearr/shared';
 import { scanProcessor } from './processors/scan';
 import { hashProcessor } from './processors/hash';
 import { importProcessor } from './processors/import';
@@ -20,10 +20,26 @@ export const hashQueue = new Queue('hash', connection);
 export const importQueue = new Queue('import', connection);
 export const datQueue = new Queue('dat', connection);
 
-new Worker(scanQueue.name, scanProcessor, connection);
-new Worker(hashQueue.name, hashProcessor, connection);
-new Worker(importQueue.name, importProcessor, connection);
-new Worker(datQueue.name, datProcessor, connection);
+new Worker(
+  scanQueue.name,
+  (job: any) => withCorrelationId(() => scanProcessor(job), job.id),
+  connection,
+);
+new Worker(
+  hashQueue.name,
+  (job: any) => withCorrelationId(() => hashProcessor(job), job.id),
+  connection,
+);
+new Worker(
+  importQueue.name,
+  (job: any) => withCorrelationId(() => importProcessor(job), job.id),
+  connection,
+);
+new Worker(
+  datQueue.name,
+  (job: any) => withCorrelationId(() => datProcessor(job), job.id),
+  connection,
+);
 
 logger.info({ queues: [scanQueue.name, hashQueue.name, importQueue.name, datQueue.name] }, 'worker started');
 startWatchCompleted();

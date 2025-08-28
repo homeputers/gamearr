@@ -5,14 +5,21 @@ import { randomUUID } from 'node:crypto';
 const store = new AsyncLocalStorage<string>();
 
 export const logger = pino({
+  redact: {
+    paths: ['req.headers.authorization', '*.token', 'token', '*.password', 'password'],
+    censor: '[Redacted]',
+  },
   mixin() {
-    const requestId = store.getStore();
-    return requestId ? { requestId } : {};
+    const correlationId = store.getStore();
+    return correlationId ? { correlationId } : {};
   },
 });
 
-export function withRequestId<T>(fn: () => T, requestId: string = randomUUID()): T {
-  return store.run(requestId, fn);
+export function withCorrelationId<T>(fn: () => T, id: string = randomUUID()): T {
+  return store.run(id, fn);
 }
+
+// Backwards compatibility
+export const withRequestId = withCorrelationId;
 
 export default logger;
