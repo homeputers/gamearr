@@ -44,6 +44,10 @@ function App() {
         <Route path="/settings" element={<Settings />} />
         <Route path="*" element={<Libraries />} />
       </Routes>
+      <footer className="p-4 text-center text-xs text-gray-500">
+        Use only with games you own and follow the terms of service for all
+        providers.
+      </footer>
     </BrowserRouter>
   );
 }
