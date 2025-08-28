@@ -1,0 +1,102 @@
+name: Containers
+
+on:
+  push:
+    branches: [main]
+    tags: ['v*']
+
+permissions:
+  contents: read
+  packages: write
+  id-token: write
+  attestations: write
+
+jobs:
+  migrate:
+    name: DB migrations
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: gamearr
+          POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
+          POSTGRES_DB: gamearr
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U gamearr" --health-interval 10s --health-timeout 5s --health-retries 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v2
+        with:
+          version: 9
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'pnpm'
+      - run: pnpm install
+      - name: Run migrations
+        run: pnpm --filter @gamearr/storage exec prisma migrate deploy
+        env:
+          DATABASE_URL: postgresql://gamearr:${{ secrets.POSTGRES_PASSWORD }}@localhost:5432/gamearr
+
+  publish:
+    needs: migrate
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        app: [api, worker, web]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: docker/setup-qemu-action@v3
+      - uses: docker/setup-buildx-action@v3
+      - uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+      - id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: |
+            ghcr.io/${{ github.repository }}-${{ matrix.app }}
+            docker.io/${{ secrets.DOCKERHUB_USERNAME }}/gamearr-${{ matrix.app }}
+          tags: |
+            type=ref,event=tag
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+            type=semver,pattern={{major}}
+            type=raw,value=latest
+      - id: build
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: apps/${{ matrix.app }}/Dockerfile
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+      - name: Generate SBOM
+        uses: anchore/sbom-action@v0
+        with:
+          image: ${{ steps.meta.outputs.tags }}
+          output-file: sbom-${{ matrix.app }}.spdx.json
+      - name: Trivy scan
+        uses: aquasecurity/trivy-action@v0.11.2
+        with:
+          image-ref: ${{ steps.meta.outputs.tags }}
+      - uses: sigstore/cosign-installer@v3
+      - name: Sign image
+        env:
+          COSIGN_YES: 'true'
+        run: cosign sign ${{ steps.meta.outputs.tags }}
+      - name: Generate provenance
+        uses: actions/attest-build-provenance@v1
+        with:
+          subject-name: ghcr.io/${{ github.repository }}-${{ matrix.app }}
+          subject-digest: ${{ steps.build.outputs.digest }}
+          push-to-registry: true
