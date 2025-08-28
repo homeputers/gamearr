@@ -20,7 +20,7 @@ jobs:
         image: postgres:16
         env:
           POSTGRES_USER: gamearr
-          POSTGRES_PASSWORD: gamearr
+          POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
           POSTGRES_DB: gamearr
         ports:
           - 5432:5432
@@ -39,7 +39,7 @@ jobs:
       - name: Run migrations
         run: pnpm --filter @gamearr/storage exec prisma migrate deploy
         env:
-          DATABASE_URL: postgresql://gamearr:gamearr@localhost:5432/gamearr
+          DATABASE_URL: postgresql://gamearr:${{ secrets.POSTGRES_PASSWORD }}@localhost:5432/gamearr
 
   publish:
     needs: migrate
