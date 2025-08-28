@@ -5,10 +5,11 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 import { mkdtemp } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
+import { PrismaService } from '../prisma/prisma.service.js';
 
 @Injectable()
 export class ExportsService {
-  constructor(private readonly prisma: PrismaClient) {}
+  constructor(private readonly prisma: PrismaService) {}
 
   async emulationstation() {
     const tmp = await mkdtemp(path.join(tmpdir(), 'es-export-'));

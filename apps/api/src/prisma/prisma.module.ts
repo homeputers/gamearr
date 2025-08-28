@@ -1,9 +1,8 @@
 import { Module } from '@nestjs/common';
-import { PrismaClient } from '@prisma/client';
-import prisma from '@gamearr/storage/src/client';
+import { PrismaService } from './prisma.service.js';
 
 @Module({
-  providers: [{ provide: PrismaClient, useValue: prisma }],
-  exports: [PrismaClient],
+  providers: [PrismaService],
+  exports: [PrismaService],
 })
 export class PrismaModule {}

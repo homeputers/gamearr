@@ -1,16 +1,11 @@
-import { Injectable, NotFoundException, Inject } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { moveArtifact } from '@gamearr/domain';
 import { readImportActivity } from '@gamearr/shared';
-// Import Prisma dynamically to handle ESM/CommonJS compatibility
-import pkg from '@prisma/client';
-const { PrismaClient } = pkg;
-
-// Create a token for dependency injection
-export const PRISMA_CLIENT = 'PRISMA_CLIENT';
+import { PrismaService } from '../prisma/prisma.service.js';
 
 @Injectable()
 export class ImportsService {
-  constructor(@Inject(PRISMA_CLIENT) private readonly prisma: any) {}
+  constructor(private readonly prisma: PrismaService) {}
 
   async organize(artifactId: string, template: string, romsRoot = '/roms') {
     const artifact = await this.prisma.artifact.findUnique({

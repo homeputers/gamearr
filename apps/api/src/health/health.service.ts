@@ -1,10 +1,11 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Inject } from '@nestjs/common';
 import { PrismaClient } from '@prisma/client';
 import { logger } from '@gamearr/shared';
+import { PrismaService } from '../prisma/prisma.service.js';
 
 @Injectable()
 export class HealthService {
-  constructor(private readonly prisma: PrismaClient) {}
+  constructor(@Inject(PrismaService) private readonly prisma: PrismaService) {}
 
   async check() {
     try {

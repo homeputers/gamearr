@@ -7,7 +7,8 @@ import { Test as NestTest } from '@nestjs/testing';
 import pkg from '@prisma/client';
 const { PrismaClient } = pkg;
 import { ImportsController } from './imports.controller.js';
-import { ImportsService, PRISMA_CLIENT } from './imports.service.js';
+import { ImportsService } from './imports.service.js';
+import { PrismaService } from '../prisma/prisma.service.js';
 
 test('POST /imports/organize moves artifact', async () => {
   const tmp = await fs.mkdtemp(path.join(os.tmpdir(), 'organize-'));
@@ -35,7 +36,7 @@ test('POST /imports/organize moves artifact', async () => {
 
   const moduleRef = await NestTest.createTestingModule({
     controllers: [ImportsController],
-    providers: [ImportsService, { provide: PRISMA_CLIENT, useValue: prismaStub }],
+    providers: [ImportsService, { provide: PrismaService, useValue: prismaStub }],
   }).compile();
 
   const app = moduleRef.createNestApplication();
