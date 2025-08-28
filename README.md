@@ -6,6 +6,12 @@
 
 Monorepo managed with [Turborepo](https://turbo.build/) and [pnpm](https://pnpm.io/).
 
+## Usage Disclaimer
+
+gamearr does not provide game files. Use this project only with backups of
+games you legally own. You are responsible for complying with the terms of
+service for any providers you access through this software.
+
 ## Workspaces
 
 - `apps/api` – NestJS API server
