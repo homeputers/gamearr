@@ -1,6 +1,6 @@
 {
   "$schema": "https://unpkg.com/@changesets/config@2.3.0/schema.json",
-  "changelog": ["@changesets/changelog-git", { "repo": "gamarr/gamarr" }],
+  "changelog": ["@changesets/changelog-git", { "repo": "homeputers/gamearr" }],
   "commit": false,
   "access": "restricted",
   "baseBranch": "main",

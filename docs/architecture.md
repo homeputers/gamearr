@@ -1,6 +1,6 @@
 # Architecture
 
-This document outlines the gamarr system using the [C4 model](https://c4model.com/).
+This document outlines the gamearr system using the [C4 model](https://c4model.com/).
 
 ## Context
 
@@ -8,7 +8,7 @@ This document outlines the gamarr system using the [C4 model](https://c4model.co
 C4Context
 title System Context
 Person(user, "User")
-System_Boundary(gamarr, "gamarr") {
+System_Boundary(gamearr, "gamearr") {
   Container(web, "Web", "React", "User-facing UI")
   Container(api, "API", "NestJS", "HTTP API")
   Container(worker, "Worker", "NestJS", "Background jobs")
@@ -29,7 +29,7 @@ Rel(worker, qbt, "Manages downloads")
 ```mermaid
 C4Container
 title Container diagram
-Boundary(gamarr, "gamarr") {
+Boundary(gamearr, "gamearr") {
   Container(web, "Web", "Vite/React", "SPA served to users")
   Container(api, "API", "NestJS", "Handles HTTP requests")
   Container(worker, "Worker", "NestJS", "Processes background jobs")
