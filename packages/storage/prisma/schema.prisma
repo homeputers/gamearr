@@ -16,6 +16,7 @@ model Platform {
   extensions String[]
   libraries  Library[]
   datEntries DatEntry[]
+  nointroDatUrl String? @map("nointro_dat_url")
 }
 
 model Library {
