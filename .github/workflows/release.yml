@@ -14,35 +14,7 @@ permissions:
   attestations: write
 
 jobs:
-  changelog:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-          ref: ${{ github.head_ref || github.ref_name }}
-      - uses: pnpm/action-setup@v2
-        with:
-          version: 9
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 20
-          cache: 'pnpm'
-      - run: pnpm install
-      - name: Apply version changes
-        run: pnpm changeset version
-      - run: pnpm install
-      - name: Generate changelog
-        run: npx conventional-changelog-cli -p angular -i CHANGELOG.md -s
-      - name: Commit changelog
-        uses: stefanzweifel/git-auto-commit-action@v4
-        with:
-          commit_message: 'chore(release): update changelog'
-          file_pattern: CHANGELOG.md
-          branch: ${{ github.head_ref || github.ref_name }}
-
   migrate:
-    needs: changelog
     name: DB migrations
     runs-on: ubuntu-latest
     services:
