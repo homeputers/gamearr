@@ -5,8 +5,8 @@ The project uses a handful of environment variables for core services. Copy `.en
 | Variable | Description |
 | --- | --- |
 | `POSTGRES_PASSWORD` | Password for the local Postgres instance. |
-| `DATABASE_URL` | Connection string used by Prisma and other database clients. |
-| `DB_URL` | Connection string used by the API (typically the same as `DATABASE_URL`). |
+| `DB_URL` | Connection string used by the API. |
+| `DATABASE_URL` | Alias of `DB_URL` for Prisma and other database clients. |
 | `REDIS_URL` | Redis instance used for queues and caching. |
 | `LIB_ROOT` | Path where processed games are stored. |
 | `DOWNLOADS_ROOT` | Directory for temporary downloads and settings file. |
