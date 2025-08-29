@@ -1,11 +1,11 @@
-import { Controller, Get, Post, Query, Res, Sse, MessageEvent } from '@nestjs/common';
+import { Controller, Get, Post, Query, Res, Sse, MessageEvent, Inject } from '@nestjs/common';
 import { SupportService } from './support.service.js';
 import { Response } from 'express';
 import { Observable } from 'rxjs';
 
 @Controller('support')
 export class SupportController {
-  constructor(private readonly support: SupportService) {}
+  constructor(@Inject(SupportService) private readonly support: SupportService) {}
 
   @Get('logs')
   getLogs(
