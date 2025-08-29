@@ -90,6 +90,9 @@ export function Downloads() {
   return (
     <div className="p-4">
       <h1 className="text-xl mb-4">Downloads</h1>
+      {data && data.length === 0 && (
+        <p className="text-gray-500">No downloads</p>
+      )}
       <div className="overflow-x-auto">
         <table className="min-w-full text-sm">
           <thead>

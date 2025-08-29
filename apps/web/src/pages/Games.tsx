@@ -192,6 +192,10 @@ export function Games() {
         </div>
       </div>
 
+      {data && data.length === 0 && (
+        <p className="text-gray-500">No games found</p>
+      )}
+
       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
         {data?.map((g) => {
           const languages = g.languages || (g.language ? g.language.split(',') : []);
