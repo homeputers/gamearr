@@ -33,6 +33,9 @@ export function Activity() {
   return (
     <div className="p-4">
       <h1 className="text-xl mb-4">Activity</h1>
+      {data && data.length === 0 && (
+        <p className="text-gray-500">No activity yet</p>
+      )}
       {Object.entries(grouped).map(([date, items]) => (
         <div key={date} className="mb-6">
           <h2 className="font-semibold mb-2">{date}</h2>
