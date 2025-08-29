@@ -1,9 +1,11 @@
-import { Controller, Get } from '@nestjs/common';
+import { Controller, Get, Inject } from '@nestjs/common';
 import { MetricsService } from './metrics.service.js';
 
 @Controller('metrics')
 export class MetricsController {
-  constructor(private readonly service: MetricsService) {}
+  constructor(
+    @Inject(MetricsService) private readonly service: MetricsService,
+  ) {}
 
   @Get('summary')
   summary() {
