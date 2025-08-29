@@ -3,7 +3,6 @@ import { createWriteStream } from 'node:fs';
 import path from 'node:path';
 import { pipeline } from 'node:stream/promises';
 import { getGame as rawgGetGame } from '../providers/rawg';
-import { pickWinner, OgoPreferences } from '@gamearr/domain';
 
 function slugify(str: string) {
   return str
@@ -37,56 +36,27 @@ export async function exportEmulationStation({
       libraries: {
         include: {
           artifacts: {
-            where: { releaseId: { not: null } },
+            where: { releaseId: { not: null }, preferred: true },
             include: { release: { include: { game: true } } },
-          },
+          } as any,
         },
       },
     },
-  });
+  } as any);
 
   const assetsRoot = path.join(outDir, 'assets');
   await fs.mkdir(assetsRoot, { recursive: true });
 
   const gameCache = new Map<string, any>();
-  const prefs: OgoPreferences = {
-    regionPriority: ['USA', 'Europe', 'Japan'],
-    preferVerified: true,
-    preferHighestRevision: true,
-  };
 
   for (const platform of platforms) {
     const platformDir = path.join(outDir, platform.name);
     await fs.mkdir(platformDir, { recursive: true });
     const entries: string[] = [];
 
-    const gameArtifacts = new Map<string, any[]>();
     for (const library of platform.libraries) {
       for (const artifact of library.artifacts) {
         if (!artifact.release) continue;
-        const gameId = artifact.release.game.id;
-        const arr = gameArtifacts.get(gameId) || [];
-        arr.push(artifact);
-        gameArtifacts.set(gameId, arr);
-      }
-    }
-
-    const winners = new Set<string>();
-    for (const group of gameArtifacts.values()) {
-      const mapped = group.map((a) => ({
-        id: a.id,
-        release: { region: a.release?.region },
-        verified: (a as any).verified ?? undefined,
-        revision: (a.release as any)?.revision ?? undefined,
-      }));
-      const { winner } = pickWinner(mapped, prefs);
-      if (winner) winners.add(winner.id);
-    }
-
-    for (const library of platform.libraries) {
-      for (const artifact of library.artifacts) {
-        if (!artifact.release) continue;
-        if (!winners.has(artifact.id)) continue;
         const game = artifact.release.game;
         const key = `${game.provider}:${game.providerId}`;
         if (!gameCache.has(key)) {

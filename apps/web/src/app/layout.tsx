@@ -4,6 +4,7 @@ import { Folder, FileQuestion, Gamepad2, Activity as ActivityIcon, Download, Set
 import { Libraries } from '../pages/Libraries';
 import { Unmatched } from '../pages/Unmatched';
 import { Games } from '../pages/Games';
+import { GamesDuplicates } from '../pages/GamesDuplicates';
 import { Activity } from '../pages/Activity';
 import { Downloads } from '../pages/Downloads';
 import { Settings } from '../pages/Settings';
@@ -103,6 +104,7 @@ export function Layout() {
             <Route path="/libraries" element={<Libraries />} />
             <Route path="/unmatched" element={<Unmatched />} />
             <Route path="/games" element={<Games />} />
+            <Route path="/games/duplicates" element={<GamesDuplicates />} />
             <Route path="/activity" element={<Activity />} />
             <Route path="/downloads" element={<Downloads />} />
             <Route path="/settings" element={<Settings />} />
