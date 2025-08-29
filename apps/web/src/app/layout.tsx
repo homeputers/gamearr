@@ -7,6 +7,7 @@ import { Games } from '../pages/Games';
 import { Activity } from '../pages/Activity';
 import { Downloads } from '../pages/Downloads';
 import { Settings } from '../pages/Settings';
+import { SettingsOrganize } from '../pages/SettingsOrganize';
 import { Input } from '../components/ui/input';
 import { Button } from '../components/ui/button';
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator } from '../components/ui/dropdown-menu';
@@ -104,6 +105,7 @@ export function Layout() {
             <Route path="/activity" element={<Activity />} />
             <Route path="/downloads" element={<Downloads />} />
             <Route path="/settings" element={<Settings />} />
+            <Route path="/settings/organize" element={<SettingsOrganize />} />
             <Route path="*" element={<Navigate to="/libraries" replace />} />
           </Routes>
         </main>

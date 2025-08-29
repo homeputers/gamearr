@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Link } from 'react-router-dom';
 import { useApiQuery } from '../lib/api';
 import { Input } from '../components/ui/input';
 
@@ -16,6 +17,11 @@ export function Settings() {
 
   return (
     <div className="p-4 space-y-4">
+      <div>
+        <Link to="/settings/organize" className="text-blue-500 underline">
+          Organize Settings
+        </Link>
+      </div>
       <div>API health: {data ? 'ok' : '...'}</div>
       <div>
         <label className="block mb-1">Region Priority</label>
