@@ -1,0 +1,9 @@
+{
+  "organizeSettings": "Organize Settings",
+  "exporters": "Exporters",
+  "providers": "Providers",
+  "apiHealth": "API health: {{status}}",
+  "regionPriority": "Region Priority",
+  "preferVerified": "Prefer verified dumps",
+  "preferRevision": "Prefer highest revision"
+}

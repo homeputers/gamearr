@@ -1,0 +1,12 @@
+{
+  "search": "Search",
+  "profile": "Profile",
+  "logout": "Logout",
+  "language": "Language",
+  "english": "English",
+  "spanish": "Spanish",
+  "toggleTheme": "Toggle theme",
+  "openNav": "Open navigation",
+  "userMenu": "User menu",
+  "goTo": "Go to {{place}}"
+}

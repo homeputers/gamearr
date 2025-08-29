@@ -1,0 +1,12 @@
+{
+  "search": "Buscar",
+  "profile": "Perfil",
+  "logout": "Cerrar sesión",
+  "language": "Idioma",
+  "english": "Inglés",
+  "spanish": "Español",
+  "toggleTheme": "Cambiar tema",
+  "openNav": "Abrir navegación",
+  "userMenu": "Menú de usuario",
+  "goTo": "Ir a {{place}}"
+}

@@ -1,6 +1,7 @@
 import * as React from 'react';
 import { NavLink, Routes, Route, Navigate, useNavigate } from 'react-router-dom';
 import { Folder, FileQuestion, Gamepad2, Activity as ActivityIcon, Download, Settings as SettingsIcon, Menu, Sun, Moon, User } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { Libraries } from '../pages/Libraries';
 import { Unmatched } from '../pages/Unmatched';
 import { Games } from '../pages/Games';
@@ -18,9 +19,11 @@ import { useTheme } from 'next-themes';
 import { cn } from '../lib/utils';
 import { CommandPalette, CommandProvider } from '../components/command-palette';
 import { HelpModal } from '../components/help-modal';
+import { LanguageSwitcher } from '../components/language-switcher';
 
 export function Layout() {
   const { theme, setTheme } = useTheme();
+  const { t } = useTranslation(['common', 'nav']);
   const [sidebarOpen, setSidebarOpen] = React.useState(false);
   const [paletteOpen, setPaletteOpen] = React.useState(false);
   const [helpOpen, setHelpOpen] = React.useState(false);
@@ -63,22 +66,22 @@ export function Layout() {
 
   const staticCommands = React.useMemo(
     () => [
-      { id: 'nav-libraries', label: 'Go to Libraries', action: () => navigate('/libraries') },
-      { id: 'nav-unmatched', label: 'Go to Unmatched', action: () => navigate('/unmatched') },
-      { id: 'nav-games', label: 'Go to Games', action: () => navigate('/games') },
+      { id: 'nav-libraries', label: t('goTo', { ns: 'common', place: t('libraries', { ns: 'nav' }) }), action: () => navigate('/libraries') },
+      { id: 'nav-unmatched', label: t('goTo', { ns: 'common', place: t('unmatched', { ns: 'nav' }) }), action: () => navigate('/unmatched') },
+      { id: 'nav-games', label: t('goTo', { ns: 'common', place: t('games', { ns: 'nav' }) }), action: () => navigate('/games') },
     ],
-    [navigate],
+    [navigate, t],
   );
 
   const toggleTheme = () => setTheme(theme === 'dark' ? 'light' : 'dark');
 
   const navItems = [
-    { to: '/libraries', label: 'Libraries', icon: Folder },
-    { to: '/unmatched', label: 'Unmatched', icon: FileQuestion },
-    { to: '/games', label: 'Games', icon: Gamepad2 },
-    { to: '/activity', label: 'Activity', icon: ActivityIcon },
-    { to: '/downloads', label: 'Downloads', icon: Download },
-    { to: '/settings', label: 'Settings', icon: SettingsIcon },
+    { to: '/libraries', label: t('libraries', { ns: 'nav' }), icon: Folder },
+    { to: '/unmatched', label: t('unmatched', { ns: 'nav' }), icon: FileQuestion },
+    { to: '/games', label: t('games', { ns: 'nav' }), icon: Gamepad2 },
+    { to: '/activity', label: t('activity', { ns: 'nav' }), icon: ActivityIcon },
+    { to: '/downloads', label: t('downloads', { ns: 'nav' }), icon: Download },
+    { to: '/settings', label: t('settings', { ns: 'nav' }), icon: SettingsIcon },
   ];
 
   return (
@@ -103,7 +106,7 @@ export function Layout() {
               to={to}
               className={({ isActive }) =>
                 cn(
-                  'flex items-center gap-2 rounded px-2 py-1 text-sm hover:bg-gray-200 dark:hover:bg-gray-700',
+                  'flex items-center gap-2 rounded px-2 py-1 text-sm hover:bg-gray-200 focus:bg-gray-200 dark:hover:bg-gray-700 dark:focus:bg-gray-700',
                   isActive && 'bg-gray-200 font-medium dark:bg-gray-700',
                 )
               }
@@ -123,29 +126,31 @@ export function Layout() {
               size="icon"
               className="md:hidden"
               onClick={() => setSidebarOpen(true)}
+              aria-label={t('openNav')}
             >
               <Menu className="h-5 w-5" />
             </Button>
-            <Input type="search" placeholder="Search" className="w-40 md:w-64" />
+            <Input type="search" placeholder={t('search')} aria-label={t('search')} className="w-40 md:w-64" />
           </div>
           <div className="flex items-center gap-2">
-            <Button variant="ghost" size="icon" onClick={toggleTheme}>
+            <Button variant="ghost" size="icon" onClick={toggleTheme} aria-label={t('toggleTheme')}>
               {theme === 'dark' ? (
                 <Sun className="h-5 w-5" />
               ) : (
                 <Moon className="h-5 w-5" />
               )}
             </Button>
+            <LanguageSwitcher />
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="icon">
+                <Button variant="ghost" size="icon" aria-label={t('userMenu')}>
                   <User className="h-5 w-5" />
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
-                <DropdownMenuItem>Profile</DropdownMenuItem>
+                <DropdownMenuItem>{t('profile')}</DropdownMenuItem>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem>Logout</DropdownMenuItem>
+                <DropdownMenuItem>{t('logout')}</DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
           </div>
