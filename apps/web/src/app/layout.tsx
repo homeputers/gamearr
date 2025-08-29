@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { NavLink, Routes, Route, Navigate } from 'react-router-dom';
+import { NavLink, Routes, Route, Navigate, useNavigate } from 'react-router-dom';
 import { Folder, FileQuestion, Gamepad2, Activity as ActivityIcon, Download, Settings as SettingsIcon, Menu, Sun, Moon, User } from 'lucide-react';
 import { Libraries } from '../pages/Libraries';
 import { Unmatched } from '../pages/Unmatched';
@@ -16,10 +16,59 @@ import { Button } from '../components/ui/button';
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator } from '../components/ui/dropdown-menu';
 import { useTheme } from 'next-themes';
 import { cn } from '../lib/utils';
+import { CommandPalette, CommandProvider } from '../components/command-palette';
+import { HelpModal } from '../components/help-modal';
 
 export function Layout() {
   const { theme, setTheme } = useTheme();
   const [sidebarOpen, setSidebarOpen] = React.useState(false);
+  const [paletteOpen, setPaletteOpen] = React.useState(false);
+  const [helpOpen, setHelpOpen] = React.useState(false);
+  const navigate = useNavigate();
+
+  React.useEffect(() => {
+    let gPressed = false;
+    let timeout: number | undefined;
+    function handleKey(e: KeyboardEvent) {
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
+        e.preventDefault();
+        setPaletteOpen(true);
+        return;
+      }
+      if (e.key === '?' && !e.metaKey && !e.ctrlKey && !e.altKey) {
+        e.preventDefault();
+        setHelpOpen(true);
+        return;
+      }
+      if (e.key === 'g' && !e.metaKey && !e.ctrlKey && !e.altKey) {
+        if (gPressed) {
+          navigate('/games');
+          gPressed = false;
+        } else {
+          gPressed = true;
+          timeout = window.setTimeout(() => (gPressed = false), 1000);
+        }
+        return;
+      }
+      if (gPressed) {
+        if (e.key === 'l') navigate('/libraries');
+        else if (e.key === 'u') navigate('/unmatched');
+        gPressed = false;
+        if (timeout) window.clearTimeout(timeout);
+      }
+    }
+    window.addEventListener('keydown', handleKey);
+    return () => window.removeEventListener('keydown', handleKey);
+  }, [navigate]);
+
+  const staticCommands = React.useMemo(
+    () => [
+      { id: 'nav-libraries', label: 'Go to Libraries', action: () => navigate('/libraries') },
+      { id: 'nav-unmatched', label: 'Go to Unmatched', action: () => navigate('/unmatched') },
+      { id: 'nav-games', label: 'Go to Games', action: () => navigate('/games') },
+    ],
+    [navigate],
+  );
 
   const toggleTheme = () => setTheme(theme === 'dark' ? 'light' : 'dark');
 
@@ -33,7 +82,8 @@ export function Layout() {
   ];
 
   return (
-    <div className="flex h-screen bg-white text-gray-900 dark:bg-gray-950 dark:text-gray-100">
+    <CommandProvider>
+      <div className="flex h-screen bg-white text-gray-900 dark:bg-gray-950 dark:text-gray-100">
       {sidebarOpen && (
         <div
           className="fixed inset-0 z-20 bg-black/50 md:hidden"
@@ -116,6 +166,13 @@ export function Layout() {
           </Routes>
         </main>
       </div>
+      <CommandPalette
+        open={paletteOpen}
+        onClose={() => setPaletteOpen(false)}
+        staticCommands={staticCommands}
+      />
+      <HelpModal open={helpOpen} onClose={() => setHelpOpen(false)} />
     </div>
+    </CommandProvider>
   );
 }

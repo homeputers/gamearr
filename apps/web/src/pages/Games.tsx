@@ -1,7 +1,9 @@
 import { useState, useEffect, useMemo } from 'react';
-import { useApiQuery } from '../lib/api';
+import { useApiQuery, apiFetch } from '../lib/api';
 import { Input } from '../components/ui/input';
 import { Button } from '../components/ui/button';
+import { toast } from 'sonner';
+import { useCommand } from '../components/command-palette';
 
 interface Game {
   id: string;
@@ -44,6 +46,9 @@ export function Games() {
     yearStart: '',
     yearEnd: '',
   });
+
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+  const { setActions } = useCommand();
 
   const debouncedSearch = useDebouncedValue(filters.search, 300);
   const regionArray = useMemo(
@@ -108,6 +113,55 @@ export function Games() {
   function deleteView(name: string) {
     setSavedViews((views) => views.filter((v) => v.name !== name));
   }
+
+  function toggle(id: string, checked: boolean) {
+    setSelectedIds((s) => {
+      const copy = new Set(s);
+      if (checked) copy.add(id);
+      else copy.delete(id);
+      return copy;
+    });
+  }
+
+  function toggleAll(checked: boolean) {
+    if (!data) return;
+    setSelectedIds(checked ? new Set(data.map((g) => g.id)) : new Set());
+  }
+
+  async function bulk(path: string, ids: string[]) {
+    await Promise.all(ids.map((id) => apiFetch(path.replace(':id', id), { method: 'POST' }))); 
+  }
+
+  const bulkMatch = async (ids: string[]) => {
+    toast(`Match ${ids.length} items`);
+  };
+  const bulkRescan = async (ids: string[]) => {
+    await bulk('/games/:id/rescan', ids);
+    toast(`Rescan requested for ${ids.length} items`);
+  };
+  const bulkReorg = async (ids: string[]) => {
+    await bulk('/games/:id/organize', ids);
+    toast(`Re-organize requested for ${ids.length} items`);
+  };
+  const bulkExport = async (ids: string[]) => {
+    await apiFetch('/exports', { method: 'POST', body: JSON.stringify({ ids }) });
+    toast(`Export requested for ${ids.length} items`);
+  };
+
+  useEffect(() => {
+    const ids = Array.from(selectedIds);
+    if (ids.length) {
+      setActions([
+        { id: 'match', label: 'Match with selection…', action: () => bulkMatch(ids) },
+        { id: 'rescan', label: 'Rescan', action: () => bulkRescan(ids) },
+        { id: 'reorg', label: 'Re-organize', action: () => bulkReorg(ids) },
+        { id: 'export', label: 'Export', action: () => bulkExport(ids) },
+      ]);
+    } else {
+      setActions([]);
+    }
+    return () => setActions([]);
+  }, [selectedIds, setActions]);
 
   return (
     <div className="p-4 space-y-4">
@@ -196,11 +250,37 @@ export function Games() {
         <p className="text-gray-500">No games found</p>
       )}
 
+      {data && data.length > 0 && (
+        <div className="flex items-center gap-2">
+          <input
+            type="checkbox"
+            checked={selectedIds.size === data.length}
+            onChange={(e) => toggleAll(e.target.checked)}
+          />
+          <span className="text-sm">Select all</span>
+        </div>
+      )}
+
+      {selectedIds.size > 0 && (
+        <div className="flex gap-2">
+          <Button onClick={() => bulkMatch(Array.from(selectedIds))}>Match with selection…</Button>
+          <Button onClick={() => bulkRescan(Array.from(selectedIds))}>Rescan</Button>
+          <Button onClick={() => bulkReorg(Array.from(selectedIds))}>Re-organize</Button>
+          <Button onClick={() => bulkExport(Array.from(selectedIds))}>Export</Button>
+        </div>
+      )}
+
       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
         {data?.map((g) => {
           const languages = g.languages || (g.language ? g.language.split(',') : []);
           return (
-            <div key={g.id} className="border rounded overflow-hidden">
+            <div key={g.id} className="relative border rounded overflow-hidden">
+              <input
+                type="checkbox"
+                className="absolute top-2 left-2 z-10"
+                checked={selectedIds.has(g.id)}
+                onChange={(e) => toggle(g.id, e.target.checked)}
+              />
               {g.coverUrl && (
                 <img
                   src={g.coverUrl}
