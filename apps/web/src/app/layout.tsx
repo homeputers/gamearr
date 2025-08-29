@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { NavLink, Routes, Route, Navigate, useNavigate } from 'react-router-dom';
-import { Folder, FileQuestion, Gamepad2, Activity as ActivityIcon, Download, Settings as SettingsIcon, Menu, Sun, Moon, User, BarChart3 } from 'lucide-react';
+import { Folder, FileQuestion, Gamepad2, Activity as ActivityIcon, Download, Settings as SettingsIcon, Menu, Sun, Moon, User, BarChart3, LifeBuoy } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { Libraries } from '../pages/Libraries';
 import { Unmatched } from '../pages/Unmatched';
@@ -13,6 +13,7 @@ import { SettingsOrganize } from '../pages/SettingsOrganize';
 import { SettingsExporters } from '../pages/SettingsExporters';
 import { SettingsProviders } from '../pages/SettingsProviders';
 import { Insights } from '../pages/Insights';
+import { Support } from '../pages/Support';
 import { Input } from '../components/ui/input';
 import { Button } from '../components/ui/button';
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator } from '../components/ui/dropdown-menu';
@@ -85,6 +86,7 @@ export function Layout() {
     { to: '/activity', label: t('activity', { ns: 'nav' }), icon: ActivityIcon },
     { to: '/downloads', label: t('downloads', { ns: 'nav' }), icon: Download },
     { to: '/settings', label: t('settings', { ns: 'nav' }), icon: SettingsIcon },
+    { to: '/support', label: t('support', { ns: 'nav' }), icon: LifeBuoy },
   ];
 
   return (
@@ -172,6 +174,7 @@ export function Layout() {
             <Route path="/settings/organize" element={<SettingsOrganize />} />
             <Route path="/settings/exporters" element={<SettingsExporters />} />
             <Route path="/settings/providers" element={<SettingsProviders />} />
+          <Route path="/support" element={<Support />} />
             <Route path="*" element={<Navigate to="/libraries" replace />} />
           </Routes>
         </main>
