@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { NavLink, Routes, Route, Navigate, useNavigate } from 'react-router-dom';
-import { Folder, FileQuestion, Gamepad2, Activity as ActivityIcon, Download, Settings as SettingsIcon, Menu, Sun, Moon, User } from 'lucide-react';
+import { Folder, FileQuestion, Gamepad2, Activity as ActivityIcon, Download, Settings as SettingsIcon, Menu, Sun, Moon, User, BarChart3 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { Libraries } from '../pages/Libraries';
 import { Unmatched } from '../pages/Unmatched';
@@ -12,6 +12,7 @@ import { Settings } from '../pages/Settings';
 import { SettingsOrganize } from '../pages/SettingsOrganize';
 import { SettingsExporters } from '../pages/SettingsExporters';
 import { SettingsProviders } from '../pages/SettingsProviders';
+import { Insights } from '../pages/Insights';
 import { Input } from '../components/ui/input';
 import { Button } from '../components/ui/button';
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator } from '../components/ui/dropdown-menu';
@@ -80,6 +81,7 @@ export function Layout() {
     { to: '/libraries', label: t('libraries', { ns: 'nav' }), icon: Folder },
     { to: '/unmatched', label: t('unmatched', { ns: 'nav' }), icon: FileQuestion },
     { to: '/games', label: t('games', { ns: 'nav' }), icon: Gamepad2 },
+    { to: '/insights', label: t('insights', { ns: 'nav' }), icon: BarChart3 },
     { to: '/activity', label: t('activity', { ns: 'nav' }), icon: ActivityIcon },
     { to: '/downloads', label: t('downloads', { ns: 'nav' }), icon: Download },
     { to: '/settings', label: t('settings', { ns: 'nav' }), icon: SettingsIcon },
@@ -160,12 +162,13 @@ export function Layout() {
         <main className="flex-1 overflow-y-auto p-4">
           <Routes>
             <Route path="/libraries" element={<Libraries />} />
-            <Route path="/unmatched" element={<Unmatched />} />
-            <Route path="/games" element={<Games />} />
-            <Route path="/games/duplicates" element={<GamesDuplicates />} />
-            <Route path="/activity" element={<Activity />} />
-            <Route path="/downloads" element={<Downloads />} />
-            <Route path="/settings" element={<Settings />} />
+          <Route path="/unmatched" element={<Unmatched />} />
+          <Route path="/games" element={<Games />} />
+          <Route path="/games/duplicates" element={<GamesDuplicates />} />
+          <Route path="/insights" element={<Insights />} />
+          <Route path="/activity" element={<Activity />} />
+          <Route path="/downloads" element={<Downloads />} />
+          <Route path="/settings" element={<Settings />} />
             <Route path="/settings/organize" element={<SettingsOrganize />} />
             <Route path="/settings/exporters" element={<SettingsExporters />} />
             <Route path="/settings/providers" element={<SettingsProviders />} />
