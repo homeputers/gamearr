@@ -65,7 +65,7 @@ export function Support() {
         <select
           value={level}
           onChange={(e) => setLevel(e.target.value)}
-          className="border p-1 text-sm"
+          className="border p-1 text-sm bg-white dark:bg-gray-800 dark:border-gray-700 dark:text-gray-100"
         >
           <option value="">All Levels</option>
           <option value="trace">Trace</option>
@@ -79,11 +79,11 @@ export function Support() {
           value={moduleFilter}
           onChange={(e) => setModuleFilter(e.target.value)}
           placeholder="Module"
-          className="border p-1 text-sm"
+          className="border p-1 text-sm bg-white dark:bg-gray-800 dark:border-gray-700 dark:text-gray-100"
         />
         <Button onClick={generateBundle}>Generate Support Bundle</Button>
       </div>
-      <div className="border rounded p-2 h-96 overflow-y-auto bg-gray-50 text-xs font-mono">
+      <div className="border rounded p-2 h-96 overflow-y-auto bg-gray-50 dark:bg-gray-900 text-xs font-mono text-gray-800 dark:text-gray-100">
         {logs.map((l, idx) => (
           <div key={idx}>
             [{new Date(l.time).toISOString()}] {l.level}{' '}

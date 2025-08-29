@@ -7,7 +7,6 @@ import { Module } from '@nestjs/common';
 import { AppModule } from './app.module.js';
 import { PrismaService } from './prisma/prisma.service.js';
 import { HealthModule } from './health/health.module.js';
-import { SupportModule } from './support/support.module.js';
 
 class PrismaServiceMock {
   async onModuleInit() {}
@@ -27,7 +26,7 @@ async function generate() {
     .setVersion('1.0')
     .build();
   const document = SwaggerModule.createDocument(app, config, {
-    include: [HealthModule, SupportModule],
+    include: [HealthModule],
   });
   const outputPath = resolve(process.cwd(), '../../docs/openapi.json');
   writeFileSync(outputPath, JSON.stringify(document, null, 2));

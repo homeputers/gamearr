@@ -8,6 +8,12 @@ export interface paths {
   "/health": {
     get: operations["HealthController_check"];
   };
+  "/ready": {
+    get: operations["HealthController_ready"];
+  };
+  "/live": {
+    get: operations["HealthController_live"];
+  };
 }
 
 export type webhooks = Record<string, never>;
@@ -29,6 +35,20 @@ export type external = Record<string, never>;
 export interface operations {
 
   HealthController_check: {
+    responses: {
+      200: {
+        content: never;
+      };
+    };
+  };
+  HealthController_ready: {
+    responses: {
+      200: {
+        content: never;
+      };
+    };
+  };
+  HealthController_live: {
     responses: {
       200: {
         content: never;
