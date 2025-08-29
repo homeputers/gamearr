@@ -13,6 +13,7 @@ import { GameModule } from './game/game.module.js';
 import { SettingsModule } from './settings/settings.module.js';
 import { ProvidersModule } from './providers/providers.module.js';
 import { MetricsModule } from './metrics/metrics.module.js';
+import { SupportModule } from './support/support.module.js';
 
 @Module({
   imports: [
@@ -30,6 +31,7 @@ import { MetricsModule } from './metrics/metrics.module.js';
     SettingsModule,
     ProvidersModule,
     MetricsModule,
+    SupportModule,
   ],
 })
 export class AppModule {}

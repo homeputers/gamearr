@@ -5,3 +5,4 @@ dist
 .env
 ._*
 v8-compile-cache*
+logs
