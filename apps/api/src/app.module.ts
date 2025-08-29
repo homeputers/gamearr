@@ -8,6 +8,7 @@ import { MatchModule } from './match/match.module';
 import { ImportsModule } from './imports/imports.module';
 import { DownloadsModule } from './downloads/downloads.module';
 import { ExportsModule } from './exports/exports.module';
+import { PlatformModule } from './platform/platform.module';
 
 @Module({
   imports: [
@@ -20,6 +21,7 @@ import { ExportsModule } from './exports/exports.module';
     ImportsModule,
     DownloadsModule,
     ExportsModule,
+    PlatformModule,
   ],
 })
 export class AppModule {}
