@@ -95,7 +95,7 @@ jobs:
       - name: Trivy scan
         uses: aquasecurity/trivy-action@0.33.0
         with:
-          image-ref: ${{ steps.meta.outputs.tags }}
+          image-ref: ${{ fromJSON(steps.meta.outputs.json).tags[0] }}
       - uses: sigstore/cosign-installer@v3
       - name: Sign image
         env:
