@@ -74,7 +74,6 @@ jobs:
             ghcr.io/${{ github.repository }}-${{ matrix.app }}
             docker.io/${{ secrets.DOCKERHUB_USERNAME }}/gamearr-${{ matrix.app }}
           tags: |
-            type=ref,event=tag
             type=semver,pattern={{version}}
             type=semver,pattern={{major}}.{{minor}}
             type=semver,pattern={{major}}
@@ -90,12 +89,12 @@ jobs:
       - name: Generate SBOM
         uses: anchore/sbom-action@v0
         with:
-          image: ${{ fromJSON(steps.meta.outputs.json).tags[0] }}
+          image: ghcr.io/${{ github.repository }}-${{ matrix.app }}:${{ steps.meta.outputs.version }}
           output-file: sbom-${{ matrix.app }}.spdx.json
       - name: Trivy scan
         uses: aquasecurity/trivy-action@0.33.0
         with:
-          image-ref: ${{ fromJSON(steps.meta.outputs.json).tags[0] }}
+          image-ref: ghcr.io/${{ github.repository }}-${{ matrix.app }}:${{ steps.meta.outputs.version }}
       - uses: sigstore/cosign-installer@v3
       - name: Sign image
         env:
