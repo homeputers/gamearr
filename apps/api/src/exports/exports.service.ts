@@ -51,7 +51,7 @@ export class ExportsService {
 
   private async computeItemCount(): Promise<number> {
     return this.prisma.artifact.count({
-      where: { releaseId: { not: null } },
+      where: { releaseId: { not: null }, preferred: true } as any,
     });
   }
 

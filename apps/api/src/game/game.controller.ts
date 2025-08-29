@@ -1,4 +1,4 @@
-import { Controller, Get, Query, Inject } from '@nestjs/common';
+import { Controller, Get, Query, Inject, Post, Body } from '@nestjs/common';
 import { GameService } from './game.service.js';
 
 @Controller('games')
@@ -22,6 +22,16 @@ export class GameController {
       yearEnd: yearEnd ? parseInt(yearEnd, 10) : undefined,
       q,
     });
+  }
+
+  @Get('duplicates')
+  duplicates() {
+    return this.service.findDuplicates();
+  }
+
+  @Post('duplicates/apply')
+  applyDuplicates(@Body() body: { overrides?: Record<string, string>; dryRun?: boolean }) {
+    return this.service.applyOneGameOneRom(body.overrides ?? {}, body.dryRun ?? true);
   }
 }
 

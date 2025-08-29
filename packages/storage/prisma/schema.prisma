@@ -39,6 +39,7 @@ model Artifact {
   multiPartGroup String? @map("multi_part_group")
   releaseId String?
   release   Release? @relation(fields: [releaseId], references: [id])
+  preferred Boolean @default(false)
 
   @@unique([libraryId, path])
 }
