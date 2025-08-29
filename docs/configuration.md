@@ -16,5 +16,5 @@ The project is configured through environment variables. Copy `.env.example` to 
 | `QBITTORRENT_URL` | URL of the qBittorrent client. |
 | `QBITTORRENT_USERNAME` | qBittorrent username. |
 | `QBITTORRENT_PASSWORD` | qBittorrent password. |
-| `NOINTRO_DAT_URL` | URL to the No-Intro DAT file. |
-| `NOINTRO_PLATFORM_ID` | No-Intro identifier for the target platform. |
+
+No-Intro DAT URLs are configured per platform in the database rather than via environment variables.

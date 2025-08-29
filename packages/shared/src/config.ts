@@ -35,8 +35,6 @@ const envSchema = z.object({
   QBITTORRENT_URL: z.string().url().optional(),
   QBITTORRENT_USERNAME: z.string().optional(),
   QBITTORRENT_PASSWORD: z.string().optional(),
-  NOINTRO_DAT_URL: z.string().url().optional(),
-  NOINTRO_PLATFORM_ID: z.string().optional(),
 });
 
 const env = envSchema.parse(process.env);
@@ -57,10 +55,6 @@ export const config = {
     url: env.QBITTORRENT_URL || 'http://localhost:8080',
     username: env.QBITTORRENT_USERNAME || 'admin',
     password: env.QBITTORRENT_PASSWORD || 'adminadmin',
-  },
-  dat: {
-    nointroUrl: env.NOINTRO_DAT_URL,
-    nointroPlatformId: env.NOINTRO_PLATFORM_ID,
   },
 };
 
