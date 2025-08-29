@@ -1,10 +1,9 @@
 import { useState } from 'react';
-import { useQuery } from '@tanstack/react-query';
-import { api } from '../api';
+import { useApiQuery } from '../lib/api';
 import { Input } from '../components/ui/input';
 
 export function Settings() {
-  const { data } = useQuery({ queryKey: ['health'], queryFn: api.health });
+  const { data } = useApiQuery<any>({ queryKey: ['health'], path: '/health' });
   const [regionPriority, setRegionPriority] = useState(
     localStorage.getItem('regionPriority') || 'USA,Europe,Japan',
   );

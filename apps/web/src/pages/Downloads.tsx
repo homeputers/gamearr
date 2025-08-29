@@ -1,8 +1,7 @@
-import { useQuery } from '@tanstack/react-query';
-import { api } from '../api';
+import { useApiQuery } from '../lib/api';
 
 export function Downloads() {
-  const { data } = useQuery({ queryKey: ['downloads'], queryFn: api.getDownloads });
+  const { data } = useApiQuery<any[]>({ queryKey: ['downloads'], path: '/downloads' });
   return (
     <div className="p-4">
       <h1 className="text-xl mb-4">Downloads</h1>

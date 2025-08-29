@@ -4,13 +4,16 @@ import { BrowserRouter } from 'react-router-dom';
 import './index.css';
 import { Providers } from './app/providers';
 import { Layout } from './app/layout';
+import { ErrorBoundary } from './app/error-boundary';
 
 ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
   <React.StrictMode>
     <Providers>
-      <BrowserRouter>
-        <Layout />
-      </BrowserRouter>
+      <ErrorBoundary>
+        <BrowserRouter>
+          <Layout />
+        </BrowserRouter>
+      </ErrorBoundary>
     </Providers>
   </React.StrictMode>,
 );

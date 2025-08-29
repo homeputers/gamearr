@@ -1,14 +1,13 @@
 import { useState } from 'react';
-import { useQuery } from '@tanstack/react-query';
-import { api } from '../api';
+import { useApiQuery } from '../lib/api';
 import { Input } from '../components/ui/input';
 
 export function Games() {
   const [platform, setPlatform] = useState('');
   const [region, setRegion] = useState('');
-  const { data } = useQuery({
+  const { data } = useApiQuery<any[]>({
     queryKey: ['games', platform, region],
-    queryFn: api.getGames,
+    path: '/games',
   });
 
   return (

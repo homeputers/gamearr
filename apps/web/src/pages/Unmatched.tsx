@@ -1,27 +1,38 @@
 import { useState } from 'react';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { api } from '../api';
+import { useQueryClient } from '@tanstack/react-query';
+import { useApiQuery, useApiMutation } from '../lib/api';
 import { Button } from '../components/ui/button';
 
 export function Unmatched() {
   const queryClient = useQueryClient();
-  const { data } = useQuery({ queryKey: ['unmatched'], queryFn: api.getUnmatched });
+  const { data } = useApiQuery<any[]>({
+    queryKey: ['unmatched'],
+    path: '/artifacts/unmatched',
+  });
   const [selected, setSelected] = useState<any | null>(null);
-  const searchQuery = useQuery({
+  const searchQuery = useApiQuery<any[]>({
     queryKey: ['search', selected?.id],
-    queryFn: () =>
-      api.searchMetadata(selected?.path.split('/').pop() || '', ''),
+    path: `/metadata/search?q=${encodeURIComponent(
+      selected?.path.split('/').pop() || '',
+    )}&platform=`,
     enabled: !!selected,
   });
 
-  const matchMutation = useMutation({
-    mutationFn: (providerId: string) =>
-      api.matchArtifact(selected!.id, 'rawg', providerId),
-    onSuccess: () => {
-      setSelected(null);
-      queryClient.invalidateQueries({ queryKey: ['unmatched'] });
+  const matchMutation = useApiMutation<void, string>(
+    (providerId) => ({
+      path: `/artifacts/${selected!.id}/match`,
+      init: {
+        method: 'POST',
+        body: JSON.stringify({ provider: 'rawg', providerId }),
+      },
+    }),
+    {
+      onSuccess: () => {
+        setSelected(null);
+        queryClient.invalidateQueries({ queryKey: ['unmatched'] });
+      },
     },
-  });
+  );
 
   return (
     <div className="flex">
