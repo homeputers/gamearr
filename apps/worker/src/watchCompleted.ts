@@ -2,7 +2,8 @@ import { promises as fs } from 'node:fs';
 import path from 'node:path';
 import { exec } from 'node:child_process';
 import { promisify } from 'node:util';
-import { config, logger, addImportActivity } from '@gamearr/shared';
+import { randomUUID } from 'node:crypto';
+import { config, logger, addActivity } from '@gamearr/shared';
 import { hashFile } from '@gamearr/domain';
 
 const execAsync = promisify(exec);
@@ -30,11 +31,12 @@ async function processFile(fullPath: string, completedDir: string, stagingDir: s
   const dest = path.join(destRoot, path.basename(working));
   await fs.rename(working, dest);
 
-  await addImportActivity({
-    file: name,
-    status: 'imported',
-    hash: sha1,
+  await addActivity({
+    id: randomUUID(),
+    type: 'import',
     timestamp: new Date().toISOString(),
+    message: `Imported ${name}`,
+    details: { file: name, hash: sha1, target: dest },
   });
 
   if (tempDir) await fs.rm(tempDir, { recursive: true, force: true });
@@ -60,11 +62,14 @@ export function startWatchCompleted(interval = 5000) {
         try {
           await processFile(full, completedDir, stagingDir);
         } catch (err: any) {
-          await addImportActivity({
-            file: entry,
-            status: 'error',
-            reason: err.message,
+          const id = randomUUID();
+          await addActivity({
+            id,
+            type: 'error',
             timestamp: new Date().toISOString(),
+            message: err.message,
+            details: { file: entry },
+            retry: { path: `/imports/activity/${id}/retry`, method: 'POST' },
           });
           logger.error({ err, file: entry }, 'failed to import');
         }
