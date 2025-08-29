@@ -9,6 +9,7 @@ import { ImportsModule } from './imports/imports.module';
 import { DownloadsModule } from './downloads/downloads.module';
 import { ExportsModule } from './exports/exports.module';
 import { PlatformModule } from './platform/platform.module';
+import { GameModule } from './game/game.module.js';
 
 @Module({
   imports: [
@@ -22,6 +23,7 @@ import { PlatformModule } from './platform/platform.module';
     DownloadsModule,
     ExportsModule,
     PlatformModule,
+    GameModule,
   ],
 })
 export class AppModule {}
