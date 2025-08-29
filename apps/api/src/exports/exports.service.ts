@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Inject } from '@nestjs/common';
 import { emulationstation } from '@gamearr/adapters';
 import fs from 'node:fs/promises';
 import path from 'node:path';
@@ -40,7 +40,7 @@ export class ExportsService {
     },
   };
 
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(@Inject(PrismaService) private readonly prisma: PrismaService) {}
 
   getStatus() {
     return Object.values(this.statuses).map((s) => ({
