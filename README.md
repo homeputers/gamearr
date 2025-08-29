@@ -47,6 +47,25 @@ pnpm -w dev
 pnpm -w build
 ```
 
+## Release
+
+1. Ensure all changes have an associated changeset.
+2. Run the changelog task to apply version bumps and regenerate `CHANGELOG.md`:
+
+   ```bash
+   make changelog
+   ```
+
+3. Commit the result and create a tag:
+
+   ```bash
+   git commit -am "chore(release): vX.Y.Z"
+   git tag vX.Y.Z
+   git push origin --tags
+   ```
+
+The release workflow builds and publishes artifacts for the tagged version.
+
 ## Documentation
 
 Additional guides and references live in the [docs](./docs) directory.
