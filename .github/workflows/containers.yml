@@ -36,10 +36,15 @@ jobs:
           node-version: 20
           cache: 'pnpm'
       - run: pnpm install
+      - name: Prepare database URL
+        env:
+          POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
+        run: |
+          ENCODED=$(node -e "process.stdout.write(encodeURIComponent(process.env.POSTGRES_PASSWORD))")
+          echo "::add-mask::$ENCODED"
+          echo "DATABASE_URL=postgresql://gamearr:$ENCODED@localhost:5432/gamearr" >> "$GITHUB_ENV"
       - name: Run migrations
         run: pnpm --filter @gamearr/storage exec prisma migrate deploy
-        env:
-          DATABASE_URL: postgresql://gamearr:${{ secrets.POSTGRES_PASSWORD }}@localhost:5432/gamearr
 
   publish:
     needs: migrate
