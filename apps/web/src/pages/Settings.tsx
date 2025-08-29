@@ -22,6 +22,11 @@ export function Settings() {
           Organize Settings
         </Link>
       </div>
+      <div>
+        <Link to="/settings/exporters" className="text-blue-500 underline">
+          Exporters
+        </Link>
+      </div>
       <div>API health: {data ? 'ok' : '...'}</div>
       <div>
         <label className="block mb-1">Region Priority</label>
