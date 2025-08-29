@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -15,6 +15,11 @@ interface Library {
   lastScannedAt?: string | null;
 }
 
+interface Platform {
+  id: string;
+  name: string;
+}
+
 const schema = z.object({
   platformId: z.string().min(1, 'Platform is required'),
   rootPath: z.string().min(1, 'Path is required'),
@@ -27,6 +32,11 @@ export function Libraries() {
   const { data } = useApiQuery<Library[]>({
     queryKey: ['libraries'],
     path: '/libraries',
+  });
+
+  const { data: platforms } = useApiQuery<Platform[]>({
+    queryKey: ['platforms'],
+    path: '/platforms',
   });
 
   const [open, setOpen] = useState(false);
@@ -70,33 +80,37 @@ export function Libraries() {
         );
         return { previous };
       },
-      onError: (_err, _vars, ctx) => {
+      onError: (err, _vars, ctx) => {
         queryClient.setQueryData(['libraries'], ctx?.previous);
+        toast.error(err.message);
       },
-      onSettled: () => {
-        queryClient.invalidateQueries({ queryKey: ['libraries'] });
+        onSettled: () => {
+          queryClient.invalidateQueries({ queryKey: ['libraries'] });
+        },
+        onSuccess: () => {
+          setOpen(false);
+        },
       },
-      onSuccess: () => {
-        setOpen(false);
-      },
-    },
-  );
+    );
 
-  const updateMutation = useApiMutation<Library, { id: string; values: FormValues }>(
-    ({ id, values }) => ({
-      path: `/libraries/${id}`,
-      init: {
-        method: 'PUT',
-        body: JSON.stringify({ platformId: values.platformId, path: values.rootPath }),
+    const updateMutation = useApiMutation<Library, { id: string; values: FormValues }>(
+      ({ id, values }) => ({
+        path: `/libraries/${id}`,
+        init: {
+          method: 'PUT',
+          body: JSON.stringify({ platformId: values.platformId, path: values.rootPath }),
+        },
+      }),
+      {
+        onSuccess: () => {
+          setOpen(false);
+          queryClient.invalidateQueries({ queryKey: ['libraries'] });
+        },
+        onError: (err) => {
+          toast.error(err.message);
+        },
       },
-    }),
-    {
-      onSuccess: () => {
-        setOpen(false);
-        queryClient.invalidateQueries({ queryKey: ['libraries'] });
-      },
-    },
-  );
+    );
 
   const deleteMutation = useApiMutation<void, string>(
     (id) => ({ path: `/libraries/${id}`, init: { method: 'DELETE' } }),
@@ -109,8 +123,9 @@ export function Libraries() {
         );
         return { previous };
       },
-      onError: (_err, _vars, ctx) => {
+      onError: (err, _vars, ctx) => {
         queryClient.setQueryData(['libraries'], ctx?.previous);
+        toast.error(err.message);
       },
       onSettled: () => {
         queryClient.invalidateQueries({ queryKey: ['libraries'] });
@@ -149,6 +164,11 @@ export function Libraries() {
     setOpen(true);
   };
 
+  const platformName = useMemo(() => {
+    const map = new Map(platforms?.map((p) => [p.id, p.name]));
+    return (id: string) => map.get(id) ?? id;
+  }, [platforms]);
+
   return (
     <div className="p-4 space-y-4">
       <div className="flex items-center justify-between">
@@ -168,7 +188,7 @@ export function Libraries() {
         <tbody>
           {data?.map((lib) => (
             <tr key={lib.id} className="border-b">
-              <td className="px-2 py-1">{lib.platformId}</td>
+              <td className="px-2 py-1">{platformName(lib.platformId)}</td>
               <td className="px-2 py-1 break-all">{lib.path}</td>
               <td className="px-2 py-1">
                 {lib.lastScannedAt ? new Date(lib.lastScannedAt).toLocaleString() : '-'}
@@ -205,8 +225,18 @@ export function Libraries() {
             </h2>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-3">
               <div>
-                <label className="mb-1 block text-sm">Platform ID</label>
-                <Input {...form.register('platformId')} />
+                <label className="mb-1 block text-sm">Platform</label>
+                <select
+                  {...form.register('platformId')}
+                  className="w-full border rounded px-2 py-1"
+                >
+                  <option value="">Select a platform</option>
+                  {platforms?.map((p) => (
+                    <option key={p.id} value={p.id}>
+                      {p.name}
+                    </option>
+                  ))}
+                </select>
                 {form.formState.errors.platformId && (
                   <p className="text-sm text-red-500">
                     {form.formState.errors.platformId.message}
