@@ -18,6 +18,9 @@ export const igdb = {
 export const qbittorrent = {
   addMagnet: qbittorrentModule.addMagnet,
   getStatus: qbittorrentModule.getStatus,
+  pause: qbittorrentModule.pause,
+  resume: qbittorrentModule.resume,
+  remove: qbittorrentModule.remove,
 };
 
 export const emulationstation = {

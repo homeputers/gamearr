@@ -56,6 +56,8 @@ export interface TorrentInfo {
   name: string;
   state: string;
   progress: number;
+  dlspeed: number;
+  eta: number;
   save_path?: string;
   content_path?: string;
 }
@@ -67,4 +69,16 @@ export async function getStatus(): Promise<TorrentInfo[]> {
     throw new Error(`qbittorrent status failed: ${res.status} ${text}`);
   }
   return res.json();
+}
+
+export async function pause(hash: string) {
+  await qbFetch(`/torrents/pause?hashes=${hash}`, { method: 'POST' });
+}
+
+export async function resume(hash: string) {
+  await qbFetch(`/torrents/resume?hashes=${hash}`, { method: 'POST' });
+}
+
+export async function remove(hash: string) {
+  await qbFetch(`/torrents/delete?hashes=${hash}&deleteFiles=false`, { method: 'POST' });
 }
