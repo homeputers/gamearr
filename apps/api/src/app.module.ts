@@ -11,6 +11,7 @@ import { ExportsModule } from './exports/exports.module';
 import { PlatformModule } from './platform/platform.module';
 import { GameModule } from './game/game.module.js';
 import { SettingsModule } from './settings/settings.module.js';
+import { ProvidersModule } from './providers/providers.module.js';
 
 @Module({
   imports: [
@@ -26,6 +27,7 @@ import { SettingsModule } from './settings/settings.module.js';
     PlatformModule,
     GameModule,
     SettingsModule,
+    ProvidersModule,
   ],
 })
 export class AppModule {}

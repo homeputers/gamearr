@@ -14,5 +14,18 @@ export class SettingsController {
   setOrganize(@Body() body: { template: string }) {
     return this.service.setOrganize(body.template);
   }
+
+  @Get('providers')
+  getProviders() {
+    return this.service.getProviders();
+  }
+
+  @Put('providers')
+  setProviders(
+    @Body()
+    body: { providers: any; downloads: any; features: Record<string, boolean> },
+  ) {
+    return this.service.setProviders(body);
+  }
 }
 
