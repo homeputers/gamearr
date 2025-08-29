@@ -87,7 +87,7 @@ jobs:
       - name: Generate SBOM
         uses: anchore/sbom-action@v0
         with:
-          image: ${{ steps.meta.outputs.tags }}
+          image: ${{ fromJSON(steps.meta.outputs.json).tags[0] }}
           output-file: sbom-${{ matrix.app }}.spdx.json
       - name: Trivy scan
         uses: aquasecurity/trivy-action@0.33.0
