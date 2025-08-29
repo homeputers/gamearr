@@ -83,12 +83,35 @@ export async function hashProcessor(job: Job<HashJob>) {
       });
     }
     let release = await prisma.release.findFirst({
-      where: { gameId: game.id, region: datEntry.region ?? undefined, language: datEntry.languages ?? undefined },
+      where: {
+        gameId: game.id,
+        region: datEntry.region ?? undefined,
+        language: datEntry.languages ?? undefined,
+      },
     });
     if (!release) {
       release = await prisma.release.create({
         data: { gameId: game.id, region: datEntry.region, language: datEntry.languages },
       });
+    }
+    await prisma.artifact.update({
+      where: { id: artifactId },
+      data: { releaseId: release.id },
+    });
+  } else {
+    // Fallback: create a game entry using the file name when no DAT match is found
+    const title = path.basename(artifact.path, path.extname(artifact.path));
+    let game = await prisma.game.findFirst({
+      where: { provider: 'file', providerId: sha1 },
+    });
+    if (!game) {
+      game = await prisma.game.create({
+        data: { title, provider: 'file', providerId: sha1 },
+      });
+    }
+    let release = await prisma.release.findFirst({ where: { gameId: game.id } });
+    if (!release) {
+      release = await prisma.release.create({ data: { gameId: game.id } });
     }
     await prisma.artifact.update({
       where: { id: artifactId },
