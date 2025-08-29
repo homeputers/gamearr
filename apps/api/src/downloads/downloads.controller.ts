@@ -1,9 +1,19 @@
-import { Body, Controller, Post, Get, Param, Delete } from '@nestjs/common';
-import { DownloadsService } from './downloads.service';
+import {
+  Body,
+  Controller,
+  Post,
+  Get,
+  Param,
+  Delete,
+  Inject,
+} from '@nestjs/common';
+import { DownloadsService } from './downloads.service.js';
 
 @Controller('downloads')
 export class DownloadsController {
-  constructor(private readonly service: DownloadsService) {}
+  constructor(
+    @Inject(DownloadsService) private readonly service: DownloadsService,
+  ) {}
 
   @Post('magnet')
   addMagnet(@Body() body: { magnet: string }) {
