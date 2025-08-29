@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { moveArtifact } from '@gamearr/domain';
-import { readImportActivity } from '@gamearr/shared';
+import { readActivity, removeActivity } from '@gamearr/shared';
 import { PrismaService } from '../prisma/prisma.service.js';
 
 @Injectable()
@@ -23,6 +23,11 @@ export class ImportsService {
   }
 
   async activity() {
-    return readImportActivity();
+    return readActivity();
+  }
+
+  async retry(id: string) {
+    await removeActivity(id);
+    return { status: 'queued' };
   }
 }

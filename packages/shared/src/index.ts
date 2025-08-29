@@ -1,3 +1,3 @@
 export * from './config.js';
 export * from './logger.js';
-export * from './importsActivity.js';
+export * from './activity.js';
