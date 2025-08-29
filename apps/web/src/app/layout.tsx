@@ -20,6 +20,7 @@ import { cn } from '../lib/utils';
 import { CommandPalette, CommandProvider } from '../components/command-palette';
 import { HelpModal } from '../components/help-modal';
 import { LanguageSwitcher } from '../components/language-switcher';
+import { OfflineBanner } from '../components/offline-banner';
 
 export function Layout() {
   const { theme, setTheme } = useTheme();
@@ -155,6 +156,7 @@ export function Layout() {
             </DropdownMenu>
           </div>
         </header>
+        <OfflineBanner />
         <main className="flex-1 overflow-y-auto p-4">
           <Routes>
             <Route path="/libraries" element={<Libraries />} />
