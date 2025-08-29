@@ -1,9 +1,9 @@
-import { Controller, Post, Get } from '@nestjs/common';
-import { ExportsService } from './exports.service';
+import { Controller, Post, Get, Inject } from '@nestjs/common';
+import { ExportsService } from './exports.service.js';
 
 @Controller('exports')
 export class ExportsController {
-  constructor(private readonly service: ExportsService) {}
+  constructor(@Inject(ExportsService) private readonly service: ExportsService) {}
 
   @Get()
   status() {
