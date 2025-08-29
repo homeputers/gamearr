@@ -2,8 +2,10 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useApiQuery } from '../lib/api';
 import { Input } from '../components/ui/input';
+import { useTranslation } from 'react-i18next';
 
 export function Settings() {
+  const { t } = useTranslation('settings');
   const { data } = useApiQuery<any>({ queryKey: ['health'], path: '/health' });
   const [regionPriority, setRegionPriority] = useState(
     localStorage.getItem('regionPriority') || 'USA,Europe,Japan',
@@ -19,28 +21,29 @@ export function Settings() {
     <div className="p-4 space-y-4">
       <div>
         <Link to="/settings/organize" className="text-blue-500 underline">
-          Organize Settings
+          {t('organizeSettings')}
         </Link>
       </div>
       <div>
         <Link to="/settings/exporters" className="text-blue-500 underline">
-          Exporters
+          {t('exporters')}
         </Link>
       </div>
       <div>
         <Link to="/settings/providers" className="text-blue-500 underline">
-          Providers
+          {t('providers')}
         </Link>
       </div>
-      <div>API health: {data ? 'ok' : '...'}</div>
+      <div>{t('apiHealth', { status: data ? 'ok' : '...' })}</div>
       <div>
-        <label className="block mb-1">Region Priority</label>
+        <label className="block mb-1">{t('regionPriority')}</label>
         <Input
           value={regionPriority}
           onChange={(e) => {
             setRegionPriority(e.target.value);
             localStorage.setItem('regionPriority', e.target.value);
           }}
+          aria-label={t('regionPriority')}
         />
       </div>
       <div>
@@ -53,7 +56,7 @@ export function Settings() {
               localStorage.setItem('preferVerified', String(e.target.checked));
             }}
           />
-          Prefer verified dumps
+          {t('preferVerified')}
         </label>
       </div>
       <div>
@@ -66,7 +69,7 @@ export function Settings() {
               localStorage.setItem('preferRevision', String(e.target.checked));
             }}
           />
-          Prefer highest revision
+          {t('preferRevision')}
         </label>
       </div>
     </div>
