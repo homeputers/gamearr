@@ -49,3 +49,31 @@ test('PUT /settings/organize validates template', async () => {
   await app.close();
 });
 
+test('PUT /settings/providers saves settings', async () => {
+  const { tmp, app, port } = await setup();
+  const body = {
+    providers: { rawgKey: 'key' },
+    downloads: {
+      qbittorrent: { baseUrl: 'http://qb', username: 'u', password: 'p', category: 'c' },
+      transmission: {},
+      sab: {},
+    },
+    features: { experimental: true },
+  };
+  const res = await fetch(`http://localhost:${port}/settings/providers`, {
+    method: 'PUT',
+    headers: { 'content-type': 'application/json' },
+    body: JSON.stringify(body),
+  });
+  const json = await res.json();
+  assert.equal(json.providers.rawgKey, 'key');
+  const file = await fs.readFile(path.join(tmp, 'settings.json'), 'utf8');
+  const parsed = JSON.parse(file);
+  assert.equal(parsed.providers.rawgKey, 'key');
+  const getRes = await fetch(`http://localhost:${port}/settings/providers`);
+  const got = await getRes.json();
+  assert.equal(got.providers.rawgKey, 'key');
+  assert.equal(got.features.experimental, true);
+  await app.close();
+});
+

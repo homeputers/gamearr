@@ -3,8 +3,32 @@ import path from 'node:path';
 import { z } from 'zod';
 import { config } from './config.js';
 
+const providerSchema = z.object({
+  rawgKey: z.string().optional(),
+  igdbClientId: z.string().optional(),
+  igdbClientSecret: z.string().optional(),
+  tgdbApiKey: z.string().optional(),
+});
+
+const downloadClientSchema = z.object({
+  baseUrl: z.string().optional(),
+  username: z.string().optional(),
+  password: z.string().optional(),
+  category: z.string().optional(),
+  label: z.string().optional(),
+});
+
 const settingsSchema = z.object({
   organizeTemplate: z.string().default('${game}${disc? ` (Disc ${disc})`:``}'),
+  providers: providerSchema.default({}),
+  downloads: z
+    .object({
+      qbittorrent: downloadClientSchema.default({}),
+      transmission: downloadClientSchema.default({}),
+      sab: downloadClientSchema.default({}),
+    })
+    .default({ qbittorrent: {}, transmission: {}, sab: {} }),
+  features: z.record(z.boolean()).default({}),
 });
 
 export type Settings = z.infer<typeof settingsSchema>;

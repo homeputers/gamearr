@@ -20,5 +20,23 @@ export class SettingsService {
     await writeSettings(updated);
     return { template };
   }
+
+  async getProviders() {
+    const settings = await readSettings();
+    const { providers = {}, downloads = {}, features = {} } = settings as any;
+    return { providers, downloads, features };
+  }
+
+  async setProviders(body: { providers: any; downloads: any; features: Record<string, boolean> }) {
+    const settings = await readSettings();
+    const updated = {
+      ...settings,
+      providers: body.providers,
+      downloads: body.downloads,
+      features: body.features,
+    };
+    await writeSettings(updated);
+    return body;
+  }
 }
 
