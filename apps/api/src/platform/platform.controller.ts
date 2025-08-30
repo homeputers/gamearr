@@ -72,6 +72,12 @@ export class PlatformController {
     return this.service.activateDat(id, datFileId);
   }
 
+  @Post(':id/dat/recheck')
+  @ApiOperation({ summary: 'Recheck unmatched artifacts against active DAT' })
+  recheck(@Param('id') id: string) {
+    return this.service.recheckDat(id);
+  }
+
   @Post(':id/dat/:datFileId/deactivate')
   @ApiOperation({ summary: 'Deactivate DAT file' })
   deactivate(@Param('id') id: string, @Param('datFileId') datFileId: string) {
