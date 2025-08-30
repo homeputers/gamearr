@@ -33,6 +33,44 @@
           }
         }
       }
+    },
+    "/platforms": {
+      "get": {
+        "operationId": "PlatformController_findAll",
+        "parameters": [],
+        "responses": {
+          "200": { "description": "" }
+        },
+        "tags": ["Platforms"]
+      },
+      "post": {
+        "operationId": "PlatformController_create",
+        "parameters": [],
+        "responses": {
+          "201": { "description": "" }
+        },
+        "tags": ["Platforms"]
+      }
+    },
+    "/platforms/{id}": {
+      "get": {
+        "operationId": "PlatformController_findOne",
+        "parameters": [{"name": "id", "in": "path", "required": true, "schema": {"type": "string"}}],
+        "responses": {"200": {"description": ""}},
+        "tags": ["Platforms"]
+      },
+      "patch": {
+        "operationId": "PlatformController_update",
+        "parameters": [{"name": "id", "in": "path", "required": true, "schema": {"type": "string"}}],
+        "responses": {"200": {"description": ""}},
+        "tags": ["Platforms"]
+      },
+      "delete": {
+        "operationId": "PlatformController_remove",
+        "parameters": [{"name": "id", "in": "path", "required": true, "schema": {"type": "string"}}],
+        "responses": {"200": {"description": ""}},
+        "tags": ["Platforms"]
+      }
     }
   },
   "info": {
