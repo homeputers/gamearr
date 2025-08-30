@@ -1,11 +1,27 @@
-import { Injectable, Inject, NotFoundException, BadRequestException } from '@nestjs/common';
+import {
+  Injectable,
+  Inject,
+  NotFoundException,
+  BadRequestException,
+} from '@nestjs/common';
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
+import { Queue } from 'bullmq';
+import { promises as fs, createReadStream } from 'node:fs';
+import { createHash } from 'node:crypto';
+import { join } from 'node:path';
+import { config } from '@gamearr/shared';
 import { PrismaService } from '../prisma/prisma.service.js';
 import type { CreatePlatformDto, UpdatePlatformDto } from './dto';
 
 @Injectable()
 export class PlatformService {
-  constructor(@Inject(PrismaService) private readonly prisma: PrismaService) {}
+  private readonly datQueue?: Queue;
+
+  constructor(@Inject(PrismaService) private readonly prisma: PrismaService) {
+    if (config.redisUrl) {
+      this.datQueue = new Queue('dat', { connection: { url: config.redisUrl } });
+    }
+  }
 
   findAll() {
     return this.prisma.platform.findMany({
@@ -98,6 +114,60 @@ export class PlatformService {
       throw err;
     }
     return { id };
+  }
+
+  async uploadDat(
+    platformId: string,
+    file: { path: string; mimetype: string; originalname: string; size: number },
+  ) {
+    if (!file) throw new BadRequestException('File is required');
+
+    const allowed: Record<string, string> = {
+      'text/xml': 'xml',
+      'application/xml': 'xml',
+      'application/zip': 'zip',
+      'application/x-7z-compressed': '7z',
+    };
+
+    const ext = allowed[file.mimetype];
+    if (!ext) {
+      await fs.unlink(file.path).catch(() => {});
+      throw new BadRequestException('Unsupported file type');
+    }
+
+    const hash = createHash('sha256');
+    await new Promise<void>((resolve, reject) => {
+      const stream = createReadStream(file.path);
+      stream.on('error', reject);
+      stream.on('data', (chunk) => hash.update(chunk));
+      stream.on('end', () => resolve());
+    });
+    const sha256 = hash.digest('hex');
+    const stat = await fs.stat(file.path);
+
+    const dir = config.paths.platformDatDir(platformId);
+    await fs.mkdir(dir, { recursive: true });
+    const filename = `${sha256}.${ext}`;
+    const dest = join(dir, filename);
+    await fs.rename(file.path, dest);
+
+    const datFile = await this.prisma.datFile.create({
+      data: {
+        platformId,
+        filename: file.originalname,
+        path: dest,
+        size: BigInt(stat.size),
+        sha256,
+        source: 'upload',
+      },
+      select: { id: true },
+    });
+
+    if (this.datQueue) {
+      await this.datQueue.add('import', { datFileId: datFile.id });
+    }
+
+    return { datFileId: datFile.id, queued: true };
   }
 }
 
