@@ -99,7 +99,7 @@ jobs:
       - name: Sign image
         env:
           COSIGN_YES: 'true'
-        run: cosign sign ${{ steps.meta.outputs.tags }}
+        run: echo "${{ steps.meta.outputs.tags }}" | xargs -n1 cosign sign
       - name: Generate provenance
         uses: actions/attest-build-provenance@v1
         with:
