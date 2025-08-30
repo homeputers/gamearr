@@ -80,20 +80,28 @@ model DatFile {
   uploadedAt     DateTime  @default(now())
   activatedAt    DateTime?
   activePlatform Platform? @relation("PlatformActiveDatFile")
+  entries        DatEntry[]
 }
 
 model DatEntry {
-  id            String   @id @default(cuid())
+  id            String    @id @default(cuid())
+  platformId    String
+  datFileId     String   @map("dat_file_id")
+  canonicalName String   @map("canonical_name")
   hashCrc       String?  @map("hash_crc")
   hashSha1      String?  @map("hash_sha1")
-  canonicalName String   @map("canonical_name")
+  hashMd5       String?  @map("hash_md5")
   region        String?
-  languages     String?
+  languages     String[]
   serial        String?
-  source        String
-  platformId    String
+  revision      String?
+  verified      Boolean  @default(true)
+  source        String   @default("unknown")
   platform      Platform @relation(fields: [platformId], references: [id])
+  datFile       DatFile  @relation(fields: [datFileId], references: [id])
 
   @@index([hashCrc])
   @@index([hashSha1])
+  @@index([hashMd5])
+  @@unique([datFileId, canonicalName])
 }

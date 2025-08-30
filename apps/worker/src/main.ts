@@ -4,10 +4,9 @@ import { config, logger, withCorrelationId } from '@gamearr/shared';
 import { scanProcessor } from './processors/scan';
 import { hashProcessor } from './processors/hash';
 import { importProcessor } from './processors/import';
-import { datProcessor } from './processors/dat';
+import { datImportProcessor } from './processors/datImport';
 import { startWatchCompleted } from './watchCompleted.js';
 import { startWatchQbittorrent } from './watchQbittorrent.js';
-import { startDatRefresh } from './watchDat.js';
 
 if (!config.redisUrl) {
   logger.warn('REDIS_URL is not set, worker disabled');
@@ -41,11 +40,10 @@ new Worker(
 );
 new Worker(
   datQueue.name,
-  (job: any) => withCorrelationId(() => datProcessor(job), job.id),
+  (job: any) => withCorrelationId(() => datImportProcessor(job), job.id),
   connection,
 );
 
 logger.info({ queues: [scanQueue.name, hashQueue.name, importQueue.name, datQueue.name] }, 'worker started');
 startWatchCompleted();
 startWatchQbittorrent();
-startDatRefresh(datQueue);

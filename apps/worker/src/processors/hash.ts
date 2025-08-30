@@ -86,12 +86,16 @@ export async function hashProcessor(job: Job<HashJob>) {
       where: {
         gameId: game.id,
         region: datEntry.region ?? undefined,
-        language: datEntry.languages ?? undefined,
+        language: datEntry.languages ? datEntry.languages[0] : undefined,
       },
     });
     if (!release) {
       release = await prisma.release.create({
-        data: { gameId: game.id, region: datEntry.region, language: datEntry.languages },
+        data: {
+          gameId: game.id,
+          region: datEntry.region,
+          language: datEntry.languages ? datEntry.languages[0] : undefined,
+        },
       });
     }
     await prisma.artifact.update({
