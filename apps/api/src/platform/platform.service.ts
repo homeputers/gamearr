@@ -169,5 +169,58 @@ export class PlatformService {
 
     return { datFileId: datFile.id, queued: true };
   }
+
+  async activateDat(platformId: string, datFileId: string) {
+    const datFile = await this.prisma.datFile.findUnique({
+      where: { id: datFileId },
+      select: { platformId: true },
+    });
+    if (!datFile || datFile.platformId !== platformId) {
+      throw new NotFoundException('DAT file not found');
+    }
+
+    await this.prisma.$transaction([
+      this.prisma.platform.update({
+        where: { id: platformId },
+        data: { activeDatFileId: datFileId },
+      }),
+      this.prisma.datFile.update({
+        where: { id: datFileId },
+        data: { activatedAt: new Date() },
+      }),
+    ]);
+
+    return { id: platformId, datFileId };
+  }
+
+  async deactivateDat(platformId: string, datFileId: string) {
+    const datFile = await this.prisma.datFile.findUnique({
+      where: { id: datFileId },
+      select: { platformId: true },
+    });
+    if (!datFile || datFile.platformId !== platformId) {
+      throw new NotFoundException('DAT file not found');
+    }
+
+    const platform = await this.prisma.platform.findUnique({
+      where: { id: platformId },
+      select: { activeDatFileId: true },
+    });
+    if (!platform) throw new NotFoundException('Platform not found');
+    if (platform.activeDatFileId !== datFileId) return { id: platformId, datFileId };
+
+    await this.prisma.$transaction([
+      this.prisma.platform.update({
+        where: { id: platformId },
+        data: { activeDatFileId: null },
+      }),
+      this.prisma.datFile.update({
+        where: { id: datFileId },
+        data: { activatedAt: null },
+      }),
+    ]);
+
+    return { id: platformId, datFileId };
+  }
 }
 
