@@ -58,7 +58,9 @@ async function readDatXml(filePath: string): Promise<string> {
   return await fs.readFile(filePath, 'utf8');
 }
 
-function parseDat(xml: string): { entries: ParsedEntry[]; version?: string; source: string } {
+export function parseDat(
+  xml: string,
+): { entries: ParsedEntry[]; version?: string; source: string } {
   const parser = new XMLParser({ ignoreAttributes: false, attributeNamePrefix: '' });
   const doc = parser.parse(xml);
   const header = doc?.datafile?.header ?? {};

@@ -7,7 +7,7 @@
     "build": "tsc -p tsconfig.json",
     "dev": "tsx watch src/main.ts",
     "lint": "echo lint worker",
-    "test": "echo test worker"
+    "test": "node --test --import tsx test/parseDat.test.ts"
   },
   "dependencies": {
     "@gamearr/adapters": "workspace:*",
