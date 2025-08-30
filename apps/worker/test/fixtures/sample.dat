@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<datafile>
+  <header>
+    <name>Test DAT</name>
+    <author>No-Intro</author>
+    <version>1.0</version>
+  </header>
+  <game name="Game One" region="USA" languages="en,fr" serial="ABC123">
+    <rom name="Game One (USA)" crc="AAAAAAAA" md5="11111111111111111111111111111111" sha1="AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA" />
+  </game>
+  <game name="Game Two" region="Europe" language="es" catalog="XYZ987">
+    <rom name="Game Two (Europe)" crc="BBBBBBBB" md5="22222222222222222222222222222222" sha1="BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB" version="Rev 1" />
+  </game>
+</datafile>
