@@ -14,6 +14,15 @@ export interface paths {
   "/live": {
     get: operations["HealthController_live"];
   };
+  "/platforms": {
+    get: operations["PlatformController_findAll"];
+    post: operations["PlatformController_create"];
+  };
+  "/platforms/{id}": {
+    get: operations["PlatformController_findOne"];
+    delete: operations["PlatformController_remove"];
+    patch: operations["PlatformController_update"];
+  };
 }
 
 export type webhooks = Record<string, never>;
@@ -49,6 +58,56 @@ export interface operations {
     };
   };
   HealthController_live: {
+    responses: {
+      200: {
+        content: never;
+      };
+    };
+  };
+  PlatformController_findAll: {
+    responses: {
+      200: {
+        content: never;
+      };
+    };
+  };
+  PlatformController_create: {
+    responses: {
+      201: {
+        content: never;
+      };
+    };
+  };
+  PlatformController_findOne: {
+    parameters: {
+      path: {
+        id: string;
+      };
+    };
+    responses: {
+      200: {
+        content: never;
+      };
+    };
+  };
+  PlatformController_remove: {
+    parameters: {
+      path: {
+        id: string;
+      };
+    };
+    responses: {
+      200: {
+        content: never;
+      };
+    };
+  };
+  PlatformController_update: {
+    parameters: {
+      path: {
+        id: string;
+      };
+    };
     responses: {
       200: {
         content: never;

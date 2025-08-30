@@ -13,6 +13,7 @@ datasource db {
 model Platform {
   id              String     @id @default(cuid())
   name            String     @unique
+  aliases         String[]
   extensions      String[]
   libraries       Library[]
   datEntries      DatEntry[]
