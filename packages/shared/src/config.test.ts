@@ -1,5 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
+import { join } from 'node:path';
 
 const VALID_ENV = {
   DB_URL: 'postgresql://user:pass@localhost:5432/db',
@@ -9,6 +10,7 @@ const VALID_ENV = {
   IGDB_CLIENT_SECRET: 'client-secret',
   LIB_ROOT: '/library',
   DOWNLOADS_ROOT: '/downloads',
+  DATA_ROOT: '/data',
 };
 
 const loadConfig = async () => import(`./config.js?${Date.now()}`);
@@ -22,6 +24,8 @@ test('parses configuration from env', async () => {
   setEnv(VALID_ENV);
   const mod = await loadConfig();
   assert.equal(mod.config.dbUrl, VALID_ENV.DB_URL);
+  assert.equal(mod.config.paths.datRoot, join('/data', 'dats'));
+  assert.equal(mod.config.paths.platformDatDir('nes'), join('/data', 'dats', 'nes'));
   process.env = original;
 });
 
