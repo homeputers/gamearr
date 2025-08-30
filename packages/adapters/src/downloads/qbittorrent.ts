@@ -18,11 +18,15 @@ async function login() {
   });
   const text = await res.text().catch(() => '');
   if (!res.ok) {
-    throw new Error(`qbittorrent login failed: ${res.status} ${text}`);
+    throw new Error(
+      `qbittorrent login failed: ${res.status} ${text} (url: ${url})`,
+    );
   }
   const setCookie = res.headers.get('set-cookie');
   if (!setCookie) {
-    throw new Error(`qbittorrent login failed: ${text || 'missing cookie'}`);
+    throw new Error(
+      `qbittorrent login failed: ${text || 'missing cookie'} (url: ${url})`,
+    );
   }
   cookie = setCookie.split(';')[0];
 }
