@@ -30,6 +30,7 @@ const envSchema = z.object({
   LIB_ROOT: z.string().optional(),
   DOWNLOADS_ROOT: z.string().optional(),
   DATA_ROOT: z.string().min(1),
+  MAX_DAT_UPLOAD_MB: z.coerce.number().int().positive().default(512),
 });
 
 const env = envSchema.parse(process.env);
@@ -39,6 +40,7 @@ const datRoot = join(env.DATA_ROOT, 'dats');
 export const config = {
   dbUrl: env.DB_URL,
   redisUrl: env.REDIS_URL,
+  maxDatUploadMB: env.MAX_DAT_UPLOAD_MB,
   paths: {
     libRoot: env.LIB_ROOT,
     downloadsRoot: env.DOWNLOADS_ROOT,

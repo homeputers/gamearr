@@ -9,6 +9,8 @@ import { Queue } from 'bullmq';
 import { promises as fs, createReadStream } from 'node:fs';
 import { createHash } from 'node:crypto';
 import { join } from 'node:path';
+import { execFile } from 'node:child_process';
+import { promisify } from 'node:util';
 import { config } from '@gamearr/shared';
 import { PrismaService } from '../prisma/prisma.service.js';
 import type { CreatePlatformDto, UpdatePlatformDto } from './dto';
@@ -16,6 +18,8 @@ import type { CreatePlatformDto, UpdatePlatformDto } from './dto';
 @Injectable()
 export class PlatformService {
   private readonly datQueue?: Queue;
+
+  private readonly execFileAsync = promisify(execFile);
 
   constructor(@Inject(PrismaService) private readonly prisma: PrismaService) {
     if (config.redisUrl) {
@@ -122,6 +126,12 @@ export class PlatformService {
   ) {
     if (!file) throw new BadRequestException('File is required');
 
+    const maxBytes = config.maxDatUploadMB * 1024 * 1024;
+    if (file.size > maxBytes) {
+      await fs.unlink(file.path).catch(() => {});
+      throw new BadRequestException(`File exceeds ${config.maxDatUploadMB}MB limit`);
+    }
+
     const allowed: Record<string, string> = {
       'text/xml': 'xml',
       'application/xml': 'xml',
@@ -135,6 +145,14 @@ export class PlatformService {
       throw new BadRequestException('Unsupported file type');
     }
 
+    try {
+      await this.validateDatFile(file.path, ext);
+    } catch (err) {
+      await fs.unlink(file.path).catch(() => {});
+      if (err instanceof BadRequestException) throw err;
+      throw new BadRequestException('Invalid DAT file');
+    }
+
     const hash = createHash('sha256');
     await new Promise<void>((resolve, reject) => {
       const stream = createReadStream(file.path);
@@ -144,6 +162,20 @@ export class PlatformService {
     });
     const sha256 = hash.digest('hex');
     const stat = await fs.stat(file.path);
+
+    const existing = await this.prisma.datFile.findFirst({
+      where: { platformId, sha256 },
+      select: { id: true, path: true },
+    });
+
+    if (existing) {
+      await fs.unlink(file.path).catch(() => {});
+      await this.prisma.datFile.update({
+        where: { id: existing.id },
+        data: { uploadedAt: new Date(), filename: file.originalname },
+      });
+      return { datFileId: existing.id, queued: false };
+    }
 
     const dir = config.paths.platformDatDir(platformId);
     await fs.mkdir(dir, { recursive: true });
@@ -168,6 +200,55 @@ export class PlatformService {
     }
 
     return { datFileId: datFile.id, queued: true };
+  }
+
+  private async validateDatFile(path: string, ext: string) {
+    const isDat = (xml: string) => /<datafile/i.test(xml);
+    if (ext === 'xml') {
+      const xml = await fs.readFile(path, 'utf8');
+      if (!isDat(xml)) throw new BadRequestException('Invalid DAT file');
+      return;
+    }
+    if (ext === 'zip') {
+      const { stdout: list } = await this.execFileAsync('unzip', ['-Z1', path]);
+      const entries = list
+        .toString()
+        .split(/\r?\n/)
+        .filter(Boolean);
+      if (entries.length === 0) throw new BadRequestException('Archive is empty');
+      if (entries.length > 1 && !/(\.dat|\.xml)$/i.test(entries[0])) {
+        throw new BadRequestException('First entry must be DAT/XML');
+      }
+      const entry = entries[0];
+      if (!/(\.dat|\.xml)$/i.test(entry)) {
+        throw new BadRequestException('No DAT file in archive');
+      }
+      const { stdout } = await this.execFileAsync('unzip', ['-p', path, entry]);
+      const xml = stdout.toString();
+      if (!isDat(xml)) throw new BadRequestException('Invalid DAT file');
+      return;
+    }
+    if (ext === '7z') {
+      const { stdout: list } = await this.execFileAsync('7z', ['l', '-ba', path]);
+      const entries = list
+        .toString()
+        .split(/\r?\n/)
+        .map((l) => l.trim().split(/\s+/).pop() || '')
+        .filter(Boolean);
+      if (entries.length === 0) throw new BadRequestException('Archive is empty');
+      if (entries.length > 1 && !/(\.dat|\.xml)$/i.test(entries[0])) {
+        throw new BadRequestException('First entry must be DAT/XML');
+      }
+      const entry = entries[0];
+      if (!/(\.dat|\.xml)$/i.test(entry)) {
+        throw new BadRequestException('No DAT file in archive');
+      }
+      const { stdout } = await this.execFileAsync('7z', ['x', '-so', path, entry]);
+      const xml = stdout.toString();
+      if (!isDat(xml)) throw new BadRequestException('Invalid DAT file');
+      return;
+    }
+    throw new BadRequestException('Unsupported file type');
   }
 
   async activateDat(platformId: string, datFileId: string) {

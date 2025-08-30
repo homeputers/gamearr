@@ -17,6 +17,7 @@ import { tmpdir } from 'node:os';
 import { PlatformService } from './platform.service';
 import { CreatePlatformDto, UpdatePlatformDto, createPlatformSchema, updatePlatformSchema } from './dto';
 import { ZodValidationPipe } from '../zod-validation.pipe';
+import { config } from '@gamearr/shared';
 
 @ApiTags('Platforms')
 @Controller('platforms')
@@ -58,7 +59,12 @@ export class PlatformController {
   @Post(':id/dat/upload')
   @ApiOperation({ summary: 'Upload DAT file' })
   @ApiConsumes('multipart/form-data')
-  @UseInterceptors(FileInterceptor('file', { dest: tmpdir() }))
+  @UseInterceptors(
+    FileInterceptor('file', {
+      dest: tmpdir(),
+      limits: { fileSize: config.maxDatUploadMB * 1024 * 1024 },
+    }),
+  )
   uploadDat(
     @Param('id') id: string,
     @UploadedFile() file: { path: string; mimetype: string; originalname: string; size: number },
