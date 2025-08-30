@@ -1,5 +1,19 @@
-import { Body, Controller, Delete, Get, Inject, Param, Patch, Post, UsePipes } from '@nestjs/common';
-import { ApiTags, ApiOperation } from '@nestjs/swagger';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Inject,
+  Param,
+  Patch,
+  Post,
+  UploadedFile,
+  UseInterceptors,
+  UsePipes,
+} from '@nestjs/common';
+import { ApiTags, ApiOperation, ApiConsumes } from '@nestjs/swagger';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { tmpdir } from 'node:os';
 import { PlatformService } from './platform.service';
 import { CreatePlatformDto, UpdatePlatformDto, createPlatformSchema, updatePlatformSchema } from './dto';
 import { ZodValidationPipe } from '../zod-validation.pipe';
@@ -39,6 +53,17 @@ export class PlatformController {
   @ApiOperation({ summary: 'Delete platform' })
   remove(@Param('id') id: string) {
     return this.service.remove(id);
+  }
+
+  @Post(':id/dat/upload')
+  @ApiOperation({ summary: 'Upload DAT file' })
+  @ApiConsumes('multipart/form-data')
+  @UseInterceptors(FileInterceptor('file', { dest: tmpdir() }))
+  uploadDat(
+    @Param('id') id: string,
+    @UploadedFile() file: { path: string; mimetype: string; originalname: string; size: number },
+  ) {
+    return this.service.uploadDat(id, file);
   }
 }
 
