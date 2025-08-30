@@ -11,35 +11,38 @@ datasource db {
 }
 
 model Platform {
-  id         String     @id @default(cuid())
-  name       String     @unique
-  extensions String[]
-  libraries  Library[]
-  datEntries DatEntry[]
-  nointroDatUrl String? @map("nointro_dat_url")
+  id              String     @id @default(cuid())
+  name            String     @unique
+  extensions      String[]
+  libraries       Library[]
+  datEntries      DatEntry[]
+  datFiles        DatFile[]  @relation("PlatformDatFiles")
+  nointroDatUrl   String?    @map("nointro_dat_url")
+  activeDatFileId String?    @unique
+  activeDatFile   DatFile?   @relation("PlatformActiveDatFile", fields: [activeDatFileId], references: [id])
 }
 
 model Library {
-  id         String    @id @default(cuid())
-  path       String    @unique
+  id         String     @id @default(cuid())
+  path       String     @unique
   platformId String
-  platform   Platform  @relation(fields: [platformId], references: [id])
+  platform   Platform   @relation(fields: [platformId], references: [id])
   artifacts  Artifact[]
 }
 
 model Artifact {
-  id        String   @id @default(cuid())
-  libraryId String
-  library   Library  @relation(fields: [libraryId], references: [id])
-  path      String
-  size      Int
-  crc32     String?
-  sha1      String?
-  format    String?
-  multiPartGroup String? @map("multi_part_group")
-  releaseId String?
-  release   Release? @relation(fields: [releaseId], references: [id])
-  preferred Boolean @default(false)
+  id             String   @id @default(cuid())
+  libraryId      String
+  library        Library  @relation(fields: [libraryId], references: [id])
+  path           String
+  size           Int
+  crc32          String?
+  sha1           String?
+  format         String?
+  multiPartGroup String?  @map("multi_part_group")
+  releaseId      String?
+  release        Release? @relation(fields: [releaseId], references: [id])
+  preferred      Boolean  @default(false)
 
   @@unique([libraryId, path])
 }
@@ -55,27 +58,41 @@ model Game {
 }
 
 model Release {
-  id       String   @id @default(cuid())
-  gameId   String
-  game     Game     @relation(fields: [gameId], references: [id])
-  region   String?
-  language String?
+  id        String     @id @default(cuid())
+  gameId    String
+  game      Game       @relation(fields: [gameId], references: [id])
+  region    String?
+  language  String?
   artifacts Artifact[]
 }
 
-model DatEntry {
-  id             String   @id @default(cuid())
-  hashCrc        String?  @map("hash_crc")
-  hashSha1       String?  @map("hash_sha1")
-  canonicalName  String   @map("canonical_name")
-  region         String?
-  languages      String?
-  serial         String?
-  source         String
+model DatFile {
+  id             String    @id @default(cuid())
+  platform       Platform  @relation("PlatformDatFiles", fields: [platformId], references: [id])
   platformId     String
-  platform       Platform @relation(fields: [platformId], references: [id])
+  filename       String
+  path           String    @unique
+  size           BigInt
+  sha256         String
+  source         String? // "upload"|"remote"
+  version        String?
+  uploadedAt     DateTime  @default(now())
+  activatedAt    DateTime?
+  activePlatform Platform? @relation("PlatformActiveDatFile")
+}
+
+model DatEntry {
+  id            String   @id @default(cuid())
+  hashCrc       String?  @map("hash_crc")
+  hashSha1      String?  @map("hash_sha1")
+  canonicalName String   @map("canonical_name")
+  region        String?
+  languages     String?
+  serial        String?
+  source        String
+  platformId    String
+  platform      Platform @relation(fields: [platformId], references: [id])
 
   @@index([hashCrc])
   @@index([hashSha1])
 }
-
