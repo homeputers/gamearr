@@ -27,15 +27,9 @@ if (process.env.NODE_ENV !== 'test') {
 const envSchema = z.object({
   DB_URL: z.string().url().optional(),
   REDIS_URL: z.string().optional(),
-  RAWG_KEY: z.string().optional(),
-  IGDB_CLIENT_ID: z.string().optional(),
-  IGDB_CLIENT_SECRET: z.string().optional(),
   LIB_ROOT: z.string().optional(),
   DOWNLOADS_ROOT: z.string().optional(),
   DATA_ROOT: z.string().min(1),
-  QBITTORRENT_URL: z.string().url().optional(),
-  QBITTORRENT_USERNAME: z.string().optional(),
-  QBITTORRENT_PASSWORD: z.string().optional(),
 });
 
 const env = envSchema.parse(process.env);
@@ -45,21 +39,11 @@ const datRoot = join(env.DATA_ROOT, 'dats');
 export const config = {
   dbUrl: env.DB_URL,
   redisUrl: env.REDIS_URL,
-  rawgKey: env.RAWG_KEY,
-  igdb: {
-    clientId: env.IGDB_CLIENT_ID,
-    clientSecret: env.IGDB_CLIENT_SECRET,
-  },
   paths: {
     libRoot: env.LIB_ROOT,
     downloadsRoot: env.DOWNLOADS_ROOT,
     datRoot,
     platformDatDir: (platformId: string) => join(datRoot, platformId),
-  },
-  qbittorrent: {
-    url: env.QBITTORRENT_URL || 'http://localhost:8080',
-    username: env.QBITTORRENT_USERNAME || 'admin',
-    password: env.QBITTORRENT_PASSWORD || 'adminadmin',
   },
 };
 

@@ -1,4 +1,4 @@
-import { config } from '@gamearr/shared';
+import { readSettings } from '@gamearr/shared';
 
 const TOKEN_URL = 'https://id.twitch.tv/oauth2/token';
 const BASE_URL = 'https://api.igdb.com/v4';
@@ -23,13 +23,16 @@ const PLATFORM_MAP: Record<string, number> = {
 let cachedToken: { token: string; expiresAt: number } | null = null;
 
 async function getToken(): Promise<string | null> {
-  if (!config.igdb.clientId || !config.igdb.clientSecret) {
+  const { providers } = await readSettings();
+  const clientId = providers.igdbClientId;
+  const clientSecret = providers.igdbClientSecret;
+  if (!clientId || !clientSecret) {
     return null;
   }
   if (cachedToken && cachedToken.expiresAt > Date.now()) {
     return cachedToken.token;
   }
-  const url = `${TOKEN_URL}?client_id=${config.igdb.clientId}&client_secret=${config.igdb.clientSecret}&grant_type=client_credentials`;
+  const url = `${TOKEN_URL}?client_id=${clientId}&client_secret=${clientSecret}&grant_type=client_credentials`;
   const res = await fetch(url, { method: 'POST' });
   if (!res.ok) {
     const text = await res.text().catch(() => '');
@@ -49,10 +52,15 @@ async function igdbFetch(path: string, body: string): Promise<any> {
   if (!token) {
     return null;
   }
+  const { providers } = await readSettings();
+  const clientId = providers.igdbClientId;
+  if (!clientId) {
+    return null;
+  }
   const res = await fetch(`${BASE_URL}${path}`, {
     method: 'POST',
     headers: {
-      'Client-ID': config.igdb.clientId!,
+      'Client-ID': clientId,
       Authorization: `Bearer ${token}`,
     },
     body,

@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { promises as fs, watch, createReadStream, existsSync } from 'node:fs';
-import { logFilePath, config } from '@gamearr/shared';
+import { logFilePath, config, readSettings } from '@gamearr/shared';
 import { Observable } from 'rxjs';
 import { MessageEvent } from '@nestjs/common';
 import archiver from 'archiver';
@@ -92,18 +92,27 @@ export class SupportService {
   async generateBundle(res: Response) {
     const archive = archiver('zip', { zlib: { level: 9 } });
     archive.pipe(res);
-    const redacted = {
-      ...config,
-      rawgKey: config.rawgKey ? '[REDACTED]' : undefined,
-      igdb: {
-        ...config.igdb,
-        clientSecret: config.igdb.clientSecret ? '[REDACTED]' : undefined,
+    const settings = await readSettings();
+    const redactedSettings = {
+      ...settings,
+      providers: {
+        ...settings.providers,
+        rawgKey: settings.providers.rawgKey ? '[REDACTED]' : undefined,
+        igdbClientSecret: settings.providers.igdbClientSecret
+          ? '[REDACTED]'
+          : undefined,
       },
-      qbittorrent: {
-        ...config.qbittorrent,
-        password: config.qbittorrent.password ? '[REDACTED]' : undefined,
+      downloads: {
+        ...settings.downloads,
+        qbittorrent: {
+          ...settings.downloads.qbittorrent,
+          password: settings.downloads.qbittorrent.password
+            ? '[REDACTED]'
+            : undefined,
+        },
       },
     };
+    const redacted = { config, settings: redactedSettings };
     archive.append(JSON.stringify(redacted, null, 2), { name: 'config.json' });
     if (existsSync(logFilePath)) {
       archive.file(logFilePath, { name: 'app.log' });

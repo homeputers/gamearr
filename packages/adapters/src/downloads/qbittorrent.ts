@@ -1,4 +1,4 @@
-import { config, readSettings } from '@gamearr/shared';
+import { readSettings } from '@gamearr/shared';
 
 interface QbConfig {
   baseUrl: string;
@@ -8,13 +8,17 @@ interface QbConfig {
 
 let lastBaseUrl: string | undefined;
 
+const DEFAULT_BASE_URL = 'http://localhost:8080';
+const DEFAULT_USERNAME = 'admin';
+const DEFAULT_PASSWORD = 'adminadmin';
+
 async function getConfig(): Promise<QbConfig> {
   const settings = await readSettings();
   const qb = settings.downloads.qbittorrent;
   return {
-    baseUrl: qb.baseUrl || config.qbittorrent.url,
-    username: qb.username || config.qbittorrent.username,
-    password: qb.password || config.qbittorrent.password,
+    baseUrl: qb.baseUrl || DEFAULT_BASE_URL,
+    username: qb.username || DEFAULT_USERNAME,
+    password: qb.password || DEFAULT_PASSWORD,
   };
 }
 

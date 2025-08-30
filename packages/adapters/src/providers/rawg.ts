@@ -1,4 +1,4 @@
-import { config } from '@gamearr/shared';
+import { readSettings } from '@gamearr/shared';
 
 const BASE_URL = 'https://api.rawg.io/api';
 
@@ -9,8 +9,10 @@ async function rawgFetch(path: string, params: Record<string, string | number | 
       url.searchParams.set(key, String(value));
     }
   }
-  if (config.rawgKey) {
-    url.searchParams.set('key', config.rawgKey);
+  const settings = await readSettings();
+  const apiKey = settings.providers.rawgKey;
+  if (apiKey) {
+    url.searchParams.set('key', apiKey);
   }
 
   const res = await fetch(url.toString());

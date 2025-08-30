@@ -5,9 +5,6 @@ import { join } from 'node:path';
 const VALID_ENV = {
   DB_URL: 'postgresql://user:pass@localhost:5432/db',
   REDIS_URL: 'redis://localhost:6379',
-  RAWG_KEY: 'rawg-key',
-  IGDB_CLIENT_ID: 'client-id',
-  IGDB_CLIENT_SECRET: 'client-secret',
   LIB_ROOT: '/library',
   DOWNLOADS_ROOT: '/downloads',
   DATA_ROOT: '/data',
