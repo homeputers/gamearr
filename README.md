@@ -1,7 +1,9 @@
 # gamearr
 
 [![CI](https://github.com/homeputers/gamearr/actions/workflows/ci.yml/badge.svg)](https://github.com/homeputers/gamearr/actions/workflows/ci.yml)
-[![Docker](https://img.shields.io/docker/pulls/homeputers/gamearr?logo=docker)](https://hub.docker.com/r/homeputers/gamearr)
+[![Docker API](https://img.shields.io/docker/pulls/acwilan/gamearr-api?logo=docker)](https://hub.docker.com/r/acwilan/gamearr-api)
+[![Docker Worker](https://img.shields.io/docker/pulls/acwilan/gamearr-worker?logo=docker)](https://hub.docker.com/r/acwilan/gamearr-worker)
+[![Docker Web](https://img.shields.io/docker/pulls/acwilan/gamearr-web?logo=docker)](https://hub.docker.com/r/acwilan/gamearr-web)
 [![Docs](https://img.shields.io/badge/docs-available-blue.svg)](./docs)
 
 Monorepo managed with [Turborepo](https://turbo.build/) and [pnpm](https://pnpm.io/).
