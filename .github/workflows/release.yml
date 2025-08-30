@@ -75,8 +75,6 @@ jobs:
             docker.io/${{ secrets.DOCKERHUB_USERNAME }}/gamearr-${{ matrix.app }}
           tags: |
             type=semver,pattern={{version}}
-            type=semver,pattern={{major}}.{{minor}}
-            type=semver,pattern={{major}}
             type=raw,value=latest
       - id: build
         uses: docker/build-push-action@v5
@@ -99,7 +97,9 @@ jobs:
       - name: Sign image
         env:
           COSIGN_YES: 'true'
-        run: echo "${{ steps.meta.outputs.tags }}" | xargs -n1 cosign sign
+        run: |
+          cosign sign ghcr.io/${{ github.repository }}-${{ matrix.app }}@${{ steps.build.outputs.digest }}
+          cosign sign docker.io/${{ secrets.DOCKERHUB_USERNAME }}/gamearr-${{ matrix.app }}@${{ steps.build.outputs.digest }}
       - name: Generate provenance
         uses: actions/attest-build-provenance@v1
         with:
