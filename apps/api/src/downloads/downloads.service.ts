@@ -1,14 +1,31 @@
 import { Injectable } from '@nestjs/common';
-import { qbittorrent } from '@gamearr/adapters';
+import { QbitClient } from '@gamearr/adapters';
+import { readSettings } from '@gamearr/shared';
 
 @Injectable()
 export class DownloadsService {
-  addMagnet(magnet: string) {
-    return qbittorrent.addMagnet(magnet);
+  private async getClient() {
+    const settings = await readSettings();
+    const qb = settings.downloads.qbittorrent;
+    if (!qb.baseUrl || !qb.username || !qb.password) {
+      throw new Error('qbittorrent not configured');
+    }
+    return new QbitClient({
+      baseURL: qb.baseUrl,
+      username: qb.username,
+      password: qb.password,
+      category: qb.category,
+    });
+  }
+
+  async addMagnet(magnet: string) {
+    const client = await this.getClient();
+    return client.addMagnet(magnet);
   }
 
   async list() {
-    const torrents = await qbittorrent.getStatus();
+    const client = await this.getClient();
+    const torrents = await client.listTorrents();
     return torrents.map((t) => ({
       hash: t.hash,
       name: t.name,
@@ -20,15 +37,18 @@ export class DownloadsService {
     }));
   }
 
-  pause(hash: string) {
-    return qbittorrent.pause(hash);
+  async pause(hash: string) {
+    const client = await this.getClient();
+    return client.pauseTorrent(hash);
   }
 
-  resume(hash: string) {
-    return qbittorrent.resume(hash);
+  async resume(hash: string) {
+    const client = await this.getClient();
+    return client.resumeTorrent(hash);
   }
 
-  remove(hash: string) {
-    return qbittorrent.remove(hash);
+  async remove(hash: string) {
+    const client = await this.getClient();
+    return client.removeTorrent(hash);
   }
 }

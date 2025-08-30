@@ -110,6 +110,26 @@ export class QbitClient {
     return arr[0];
   }
 
+  async pauseTorrent(hash: string): Promise<number> {
+    const body = new URLSearchParams({ hashes: hash });
+    const res = await this.qbFetch('/torrents/pause', { method: 'POST', body });
+    if (!res.ok) {
+      const text = await res.text().catch(() => '');
+      throw new Error(`qbittorrent pause failed: ${res.status} ${text}`);
+    }
+    return res.status;
+  }
+
+  async resumeTorrent(hash: string): Promise<number> {
+    const body = new URLSearchParams({ hashes: hash });
+    const res = await this.qbFetch('/torrents/resume', { method: 'POST', body });
+    if (!res.ok) {
+      const text = await res.text().catch(() => '');
+      throw new Error(`qbittorrent resume failed: ${res.status} ${text}`);
+    }
+    return res.status;
+  }
+
   async removeTorrent(hash: string, opts: { deleteFiles?: boolean } = {}): Promise<number> {
     const body = new URLSearchParams({
       hashes: hash,
