@@ -2,6 +2,7 @@
   "organizeSettings": "Configuración de organización",
   "exporters": "Exportadores",
   "providers": "Proveedores",
+  "platforms": "Plataformas",
   "apiHealth": "Estado de la API: {{status}}",
   "regionPriority": "Prioridad de región",
   "preferVerified": "Preferir volcados verificados",

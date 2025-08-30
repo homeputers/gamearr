@@ -34,6 +34,11 @@ export function Settings() {
           {t('providers')}
         </Link>
       </div>
+      <div>
+        <Link to="/settings/platforms" className="text-blue-500 underline">
+          {t('platforms')}
+        </Link>
+      </div>
       <div>{t('apiHealth', { status: data ? 'ok' : '...' })}</div>
       <div>
         <label className="block mb-1">{t('regionPriority')}</label>
