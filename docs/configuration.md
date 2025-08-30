@@ -12,6 +12,7 @@ The project uses a handful of environment variables for core services. Copy `.en
 | `DOWNLOADS_ROOT` | Directory for temporary downloads and settings file. |
 | `DATA_ROOT` | Persistent data directory for services. |
 | `MAX_DAT_UPLOAD_MB` | Maximum allowed DAT upload size in megabytes (default: 512). |
+| `DAT_PRUNE_KEEP` | Number of inactive DATs to retain per platform (default: 2). |
 
 Provider API keys and download client credentials are configured via the Settings page and stored in the settings file.
 
