@@ -1,6 +1,6 @@
 import { Queue } from 'bullmq';
 import { prisma } from '@gamearr/storage/src/client';
-import { logger } from '@gamearr/shared';
+import { config, logger } from '@gamearr/shared';
 
 async function waitForPrismaPlatform(timeoutMs = 30000, intervalMs = 500) {
   const start = Date.now();
@@ -63,4 +63,17 @@ export function startDatRefresh(queue: Queue, interval = 24 * 60 * 60 * 1000) {
     enqueueAll();
   });
   setInterval(enqueueAll, interval);
+}
+
+export function startDatPrune(queue: Queue, interval = 24 * 60 * 60 * 1000) {
+  const enqueue = async () => {
+    try {
+      await queue.add('prune', { keep: config.datPruneKeep });
+    } catch (err) {
+      logger.error({ err }, 'failed to enqueue dat prune');
+    }
+  };
+
+  enqueue();
+  setInterval(enqueue, interval);
 }
