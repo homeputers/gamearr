@@ -1,10 +1,9 @@
 # Installing
 
-The application is intended to be deployed using a Docker image built by our
-GitHub Actions pipeline. Images are not yet pushed to a public registry, so you
-must currently download the workflow artifact or build the image locally. Once a
-registry is configured you will be able to `docker pull` the prebuilt image
-instead of building it yourself.
+The application is intended to be deployed using Docker images published by our
+GitHub Actions pipeline. Prebuilt images are available on Docker Hub under the
+`acwilan/gamearr-*` repositories, so you can pull them directly instead of
+building locally.
 
 ## Prerequisites
 
@@ -14,18 +13,16 @@ instead of building it yourself.
 ## Steps
 
 1. Copy `.env.example` to `.env` and set values for your environment.
-2. Build the Docker image (skip this step once images are published):
+2. Pull the Docker images:
    ```bash
-   docker compose -f docker-compose.app.yml build
+   docker pull acwilan/gamearr-api:latest
+   docker pull acwilan/gamearr-worker:latest
+   docker pull acwilan/gamearr-web:latest
    ```
-   This uses the same Dockerfile and configuration as the CI pipeline.
 3. Start the stack:
    ```bash
    docker compose -f docker-compose.app.yml up -d
    ```
-   The command launches the API, worker, and web services using the built
+   The command launches the API, worker, and web services using the pulled
    images.
-
-When images become available in a registry, replace step 2 with a `docker pull`
-for the appropriate image reference.
 
