@@ -3,6 +3,7 @@ import * as igdbModule from './providers/igdb';
 import * as qbittorrentModule from './downloads/qbittorrent';
 import * as emulationstationModule from './exporters/emulationstation';
 import * as nointroDatModule from './dat/nointro';
+import demoIndexer from './indexers/demo.js';
 
 // Create and export the rawg object
 export const rawg = {
@@ -32,4 +33,8 @@ export const dat = {
     loadDat: nointroDatModule.loadNointroDat,
     parseDat: nointroDatModule.parseNointroDat,
   },
+};
+
+export const indexers = {
+  demo: demoIndexer,
 };

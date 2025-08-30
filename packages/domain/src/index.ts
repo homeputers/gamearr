@@ -6,3 +6,5 @@ export * from './parsers/gdi.js';
 export * from './organize/renderTemplate.js';
 export * from './organize/moveArtifact.js';
 export * from './organize/oneGameOneRom.js';
+export * from './indexers/types.js';
+export * from './indexers/registry.js';
