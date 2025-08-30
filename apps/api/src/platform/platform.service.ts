@@ -190,7 +190,25 @@ export class PlatformService {
       }),
     ]);
 
+    if (this.datQueue) {
+      await this.datQueue.add('recheck-platform', { platformId });
+    }
+
     return { id: platformId, datFileId };
+  }
+
+  async recheckDat(platformId: string) {
+    const platform = await this.prisma.platform.findUnique({
+      where: { id: platformId },
+      select: { id: true },
+    });
+    if (!platform) throw new NotFoundException('Platform not found');
+
+    if (this.datQueue) {
+      await this.datQueue.add('recheck-platform', { platformId });
+      return { queued: true };
+    }
+    return { queued: false };
   }
 
   async deactivateDat(platformId: string, datFileId: string) {
