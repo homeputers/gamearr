@@ -65,5 +65,17 @@ export class PlatformController {
   ) {
     return this.service.uploadDat(id, file);
   }
+
+  @Post(':id/dat/:datFileId/activate')
+  @ApiOperation({ summary: 'Activate DAT file' })
+  activate(@Param('id') id: string, @Param('datFileId') datFileId: string) {
+    return this.service.activateDat(id, datFileId);
+  }
+
+  @Post(':id/dat/:datFileId/deactivate')
+  @ApiOperation({ summary: 'Deactivate DAT file' })
+  deactivate(@Param('id') id: string, @Param('datFileId') datFileId: string) {
+    return this.service.deactivateDat(id, datFileId);
+  }
 }
 
