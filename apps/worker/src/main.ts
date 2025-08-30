@@ -7,6 +7,7 @@ import { importProcessor } from './processors/import';
 import { datProcessor } from './processors/dat';
 import { startWatchCompleted } from './watchCompleted.js';
 import { startWatchQbittorrent } from './watchQbittorrent.js';
+import { startDatPrune } from './watchDat.js';
 
 if (!config.redisUrl) {
   logger.warn('REDIS_URL is not set, worker disabled');
@@ -47,3 +48,4 @@ new Worker(
 logger.info({ queues: [scanQueue.name, hashQueue.name, importQueue.name, datQueue.name] }, 'worker started');
 startWatchCompleted();
 startWatchQbittorrent();
+startDatPrune(datQueue);
