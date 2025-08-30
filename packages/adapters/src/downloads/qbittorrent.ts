@@ -1,81 +1,8 @@
-import { readSettings } from '@gamearr/shared';
-
-interface QbConfig {
-  baseUrl: string;
+export interface QbitConfig {
+  baseURL: string;
   username: string;
   password: string;
-}
-
-let lastBaseUrl: string | undefined;
-
-const DEFAULT_BASE_URL = 'http://localhost:8080';
-const DEFAULT_USERNAME = 'admin';
-const DEFAULT_PASSWORD = 'adminadmin';
-
-async function getConfig(): Promise<QbConfig> {
-  const settings = await readSettings();
-  const qb = settings.downloads.qbittorrent;
-  return {
-    baseUrl: qb.baseUrl || DEFAULT_BASE_URL,
-    username: qb.username || DEFAULT_USERNAME,
-    password: qb.password || DEFAULT_PASSWORD,
-  };
-}
-
-let cookie: string | undefined;
-
-async function login(baseUrl: string, username: string, password: string) {
-  const url = new URL('/api/v2/auth/login', baseUrl);
-  const body = new URLSearchParams({ username, password });
-  const res = await fetch(url, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/x-www-form-urlencoded',
-    },
-    body,
-  });
-  const text = await res.text().catch(() => '');
-  if (!res.ok) {
-    throw new Error(
-      `qbittorrent login failed: ${res.status} ${text} (url: ${url})`,
-    );
-  }
-  const setCookie = res.headers.get('set-cookie');
-  if (!setCookie) {
-    throw new Error(
-      `qbittorrent login failed: ${text || 'missing cookie'} (url: ${url})`,
-    );
-  }
-  cookie = setCookie.split(';')[0];
-}
-
-async function qbFetch(path: string, init: RequestInit = {}, retry = true): Promise<Response> {
-  const { baseUrl, username, password } = await getConfig();
-  if (baseUrl !== lastBaseUrl) {
-    cookie = undefined;
-    lastBaseUrl = baseUrl;
-  }
-  const url = new URL(`/api/v2${path}`, baseUrl);
-  const headers = new Headers(init.headers);
-  if (cookie) headers.set('cookie', cookie);
-  const res = await fetch(url, { ...init, headers });
-  if (res.status === 403 && retry) {
-    await login(baseUrl, username, password);
-    return qbFetch(path, init, false);
-  }
-  return res;
-}
-
-export async function addMagnet(magnet: string) {
-  const body = new URLSearchParams({ urls: magnet, category: 'gamearr' });
-  const res = await qbFetch('/torrents/add', {
-    method: 'POST',
-    body,
-  });
-  if (!res.ok) {
-    const text = await res.text().catch(() => '');
-    throw new Error(`qbittorrent add failed: ${res.status} ${text}`);
-  }
+  category?: string;
 }
 
 export interface TorrentInfo {
@@ -89,23 +16,130 @@ export interface TorrentInfo {
   content_path?: string;
 }
 
-export async function getStatus(): Promise<TorrentInfo[]> {
-  const res = await qbFetch('/torrents/info?category=gamearr');
-  if (!res.ok) {
-    const text = await res.text().catch(() => '');
-    throw new Error(`qbittorrent status failed: ${res.status} ${text}`);
+export class QbitClient {
+  private readonly baseURL: string;
+  private readonly username: string;
+  private readonly password: string;
+  private readonly category: string;
+  private cookie?: string;
+  private csrf?: string;
+
+  constructor(config: QbitConfig) {
+    this.baseURL = config.baseURL;
+    this.username = config.username;
+    this.password = config.password;
+    this.category = config.category ?? 'gamearr';
   }
-  return res.json();
-}
 
-export async function pause(hash: string) {
-  await qbFetch(`/torrents/pause?hashes=${hash}`, { method: 'POST' });
-}
+  async login(): Promise<void> {
+    const url = new URL('/api/v2/auth/login', this.baseURL);
+    const body = new URLSearchParams({
+      username: this.username,
+      password: this.password,
+    });
+    const res = await fetch(url.toString(), {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body,
+    });
+    const text = await res.text().catch(() => '');
+    if (!res.ok) {
+      throw new Error(`qbittorrent login failed: ${res.status} ${text}`);
+    }
+    const setCookie = res.headers.get('set-cookie');
+    if (!setCookie) {
+      throw new Error(`qbittorrent login failed: ${text || 'missing cookie'}`);
+    }
+    const cookieParts: string[] = [];
+    for (const part of setCookie.split(',')) {
+      const trimmed = part.trim();
+      const first = trimmed.split(';')[0];
+      const [name, value] = first.split('=');
+      if (/csrf/i.test(name)) {
+        this.csrf = value;
+      }
+      cookieParts.push(first);
+    }
+    this.cookie = cookieParts.join('; ');
+  }
 
-export async function resume(hash: string) {
-  await qbFetch(`/torrents/resume?hashes=${hash}`, { method: 'POST' });
-}
+  private async qbFetch(path: string, init: RequestInit = {}, retry = true): Promise<Response> {
+    const url = new URL(`/api/v2${path}`, this.baseURL);
+    const headers = new Headers(init.headers);
+    headers.set('Referer', this.baseURL);
+    if (this.cookie) headers.set('Cookie', this.cookie);
+    if (this.csrf) headers.set('X-CSRF-Token', this.csrf);
+    const res = await fetch(url.toString(), { ...init, headers });
+    if (res.status === 403 && retry) {
+      await this.login();
+      return this.qbFetch(path, init, false);
+    }
+    return res;
+  }
 
-export async function remove(hash: string) {
-  await qbFetch(`/torrents/delete?hashes=${hash}&deleteFiles=false`, { method: 'POST' });
+  async addMagnet(magnet: string, opts: { category?: string } = {}): Promise<number> {
+    const body = new URLSearchParams({
+      urls: magnet,
+      category: opts.category || this.category,
+    });
+    const res = await this.qbFetch('/torrents/add', { method: 'POST', body });
+    if (!res.ok) {
+      const text = await res.text().catch(() => '');
+      throw new Error(`qbittorrent add failed: ${res.status} ${text}`);
+    }
+    return res.status;
+  }
+
+  async listTorrents(opts: { category?: string } = {}): Promise<TorrentInfo[]> {
+    const category = opts.category || this.category;
+    const res = await this.qbFetch(`/torrents/info?category=${encodeURIComponent(category)}`);
+    if (!res.ok) {
+      const text = await res.text().catch(() => '');
+      throw new Error(`qbittorrent list failed: ${res.status} ${text}`);
+    }
+    return res.json();
+  }
+
+  async getTorrent(hash: string): Promise<TorrentInfo | undefined> {
+    const res = await this.qbFetch(`/torrents/info?hashes=${hash}`);
+    if (!res.ok) {
+      const text = await res.text().catch(() => '');
+      throw new Error(`qbittorrent get failed: ${res.status} ${text}`);
+    }
+    const arr: TorrentInfo[] = await res.json();
+    return arr[0];
+  }
+
+  async pauseTorrent(hash: string): Promise<number> {
+    const body = new URLSearchParams({ hashes: hash });
+    const res = await this.qbFetch('/torrents/pause', { method: 'POST', body });
+    if (!res.ok) {
+      const text = await res.text().catch(() => '');
+      throw new Error(`qbittorrent pause failed: ${res.status} ${text}`);
+    }
+    return res.status;
+  }
+
+  async resumeTorrent(hash: string): Promise<number> {
+    const body = new URLSearchParams({ hashes: hash });
+    const res = await this.qbFetch('/torrents/resume', { method: 'POST', body });
+    if (!res.ok) {
+      const text = await res.text().catch(() => '');
+      throw new Error(`qbittorrent resume failed: ${res.status} ${text}`);
+    }
+    return res.status;
+  }
+
+  async removeTorrent(hash: string, opts: { deleteFiles?: boolean } = {}): Promise<number> {
+    const body = new URLSearchParams({
+      hashes: hash,
+      deleteFiles: String(!!opts.deleteFiles),
+    });
+    const res = await this.qbFetch('/torrents/delete', { method: 'POST', body });
+    if (!res.ok) {
+      const text = await res.text().catch(() => '');
+      throw new Error(`qbittorrent remove failed: ${res.status} ${text}`);
+    }
+    return res.status;
+  }
 }
