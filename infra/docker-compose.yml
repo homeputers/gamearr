@@ -20,6 +20,8 @@ services:
   qbittorrent:
     image: lscr.io/linuxserver/qbittorrent:latest
     restart: unless-stopped
+    environment:
+      QBT_WEBUI_MAXAUTHENTICATIONFAILCOUNT: 0 # disable WebUI IP bans for failed logins
     ports:
       - "8080:8080"
     volumes:

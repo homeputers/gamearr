@@ -1,14 +1,28 @@
-import { config } from '@gamearr/shared';
+import { config, readSettings } from '@gamearr/shared';
 
-const BASE_URL = config.qbittorrent?.url || 'http://localhost:8080';
-const USERNAME = config.qbittorrent?.username || 'admin';
-const PASSWORD = config.qbittorrent?.password || 'adminadmin';
+interface QbConfig {
+  baseUrl: string;
+  username: string;
+  password: string;
+}
+
+let lastBaseUrl: string | undefined;
+
+async function getConfig(): Promise<QbConfig> {
+  const settings = await readSettings();
+  const qb = settings.downloads.qbittorrent;
+  return {
+    baseUrl: qb.baseUrl || config.qbittorrent.url,
+    username: qb.username || config.qbittorrent.username,
+    password: qb.password || config.qbittorrent.password,
+  };
+}
 
 let cookie: string | undefined;
 
-async function login() {
-  const url = new URL('/api/v2/auth/login', BASE_URL);
-  const body = new URLSearchParams({ username: USERNAME, password: PASSWORD });
+async function login(baseUrl: string, username: string, password: string) {
+  const url = new URL('/api/v2/auth/login', baseUrl);
+  const body = new URLSearchParams({ username, password });
   const res = await fetch(url, {
     method: 'POST',
     headers: {
@@ -16,24 +30,33 @@ async function login() {
     },
     body,
   });
+  const text = await res.text().catch(() => '');
   if (!res.ok) {
-    const text = await res.text().catch(() => '');
-    throw new Error(`qbittorrent login failed: ${res.status} ${text}`);
+    throw new Error(
+      `qbittorrent login failed: ${res.status} ${text} (url: ${url})`,
+    );
   }
   const setCookie = res.headers.get('set-cookie');
   if (!setCookie) {
-    throw new Error('qbittorrent login missing cookie');
+    throw new Error(
+      `qbittorrent login failed: ${text || 'missing cookie'} (url: ${url})`,
+    );
   }
   cookie = setCookie.split(';')[0];
 }
 
 async function qbFetch(path: string, init: RequestInit = {}, retry = true): Promise<Response> {
-  const url = new URL(`/api/v2${path}`, BASE_URL);
+  const { baseUrl, username, password } = await getConfig();
+  if (baseUrl !== lastBaseUrl) {
+    cookie = undefined;
+    lastBaseUrl = baseUrl;
+  }
+  const url = new URL(`/api/v2${path}`, baseUrl);
   const headers = new Headers(init.headers);
   if (cookie) headers.set('cookie', cookie);
   const res = await fetch(url, { ...init, headers });
   if (res.status === 403 && retry) {
-    await login();
+    await login(baseUrl, username, password);
     return qbFetch(path, init, false);
   }
   return res;
