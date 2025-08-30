@@ -14,7 +14,13 @@ export async function hashProcessor(job: Job<HashJob>) {
   const { artifactId } = job.data;
   const artifact = await prisma.artifact.findUnique({
     where: { id: artifactId },
-    include: { library: true },
+    include: {
+      library: {
+        include: {
+          platform: { select: { activeDatFileId: true } },
+        },
+      },
+    },
   });
   if (!artifact) {
     logger.warn({ artifactId }, 'artifact not found');
@@ -62,13 +68,17 @@ export async function hashProcessor(job: Job<HashJob>) {
     where: { id: artifactId },
     data,
   });
-
-  const datEntry = await prisma.datEntry.findFirst({
-    where: {
-      platformId: artifact.library.platformId,
-      OR: [{ hashCrc: crc32 }, { hashSha1: sha1 }],
-    },
-  });
+  let datEntry = null;
+  const activeDatFileId = artifact.library.platform.activeDatFileId;
+  if (activeDatFileId) {
+    datEntry = await prisma.datEntry.findFirst({
+      where: {
+        platformId: artifact.library.platformId,
+        datFileId: activeDatFileId,
+        OR: [{ hashCrc: crc32 }, { hashSha1: sha1 }],
+      },
+    });
+  }
   if (datEntry) {
     let game = await prisma.game.findFirst({
       where: { provider: datEntry.source, providerId: datEntry.canonicalName },
