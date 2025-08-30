@@ -50,32 +50,32 @@ dev:
 
 .PHONY: build
 build:
-        pnpm -w build
+	pnpm -w build
 
 .PHONY: test
 test:
-        pnpm -w test
+	pnpm -w test
 
 # Release commands
 .PHONY: changelog
 changelog:
-        pnpm changeset version
-        pnpm install
-        npx conventional-changelog-cli -p angular -i CHANGELOG.md -s
+	pnpm changeset version
+	pnpm install
+	npx conventional-changelog-cli -p angular -i CHANGELOG.md -s
 
 # Help command
 .PHONY: help
 help:
-        @echo "Available commands:"
-	@echo "  docker-up      - Start all containers"
-	@echo "  docker-down    - Stop all containers"
-	@echo "  docker-restart - Restart all containers"
-	@echo "  docker-logs    - View container logs"
-	@echo "  docker-ps      - List running containers"
-	@echo "  db-migrate     - Run database migrations"
-	@echo "  db-studio      - Open Prisma Studio"
-	@echo "  dev            - Start development servers"
-        @echo "  build          - Build the project"
-        @echo "  test           - Run project tests"
-        @echo "  changelog      - Apply versions and regenerate changelog"
-        @echo "  help           - Show this help message"
+	@echo "Available commands:"
+	@echo "	 docker-up	- Start all containers"
+	@echo "	 docker-down	- Stop all containers"
+	@echo "	 docker-restart - Restart all containers"
+	@echo "	 docker-logs	- View container logs"
+	@echo "	 docker-ps	- List running containers"
+	@echo "	 db-migrate	- Run database migrations"
+	@echo "	 db-studio	- Open Prisma Studio"
+	@echo "	 dev		- Start development servers"
+	@echo "	 build		- Build the project"
+	@echo "	 test		- Run project tests"
+	@echo "	 changelog	- Apply versions and regenerate changelog"
+	@echo "	 help		- Show this help message"
