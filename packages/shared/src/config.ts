@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import { createRequire } from 'node:module';
-import { dirname, resolve } from 'node:path';
+import { dirname, resolve, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { readFileSync } from 'node:fs';
 
@@ -32,12 +32,15 @@ const envSchema = z.object({
   IGDB_CLIENT_SECRET: z.string().optional(),
   LIB_ROOT: z.string().optional(),
   DOWNLOADS_ROOT: z.string().optional(),
+  DATA_ROOT: z.string().min(1),
   QBITTORRENT_URL: z.string().url().optional(),
   QBITTORRENT_USERNAME: z.string().optional(),
   QBITTORRENT_PASSWORD: z.string().optional(),
 });
 
 const env = envSchema.parse(process.env);
+
+const datRoot = join(env.DATA_ROOT, 'dats');
 
 export const config = {
   dbUrl: env.DB_URL,
@@ -50,6 +53,8 @@ export const config = {
   paths: {
     libRoot: env.LIB_ROOT,
     downloadsRoot: env.DOWNLOADS_ROOT,
+    datRoot,
+    platformDatDir: (platformId: string) => join(datRoot, platformId),
   },
   qbittorrent: {
     url: env.QBITTORRENT_URL || 'http://localhost:8080',

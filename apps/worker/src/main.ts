@@ -1,4 +1,5 @@
 import { Queue, Worker } from 'bullmq';
+import { mkdirSync } from 'node:fs';
 import { config, logger, withCorrelationId } from '@gamearr/shared';
 import { scanProcessor } from './processors/scan';
 import { hashProcessor } from './processors/hash';
@@ -12,6 +13,9 @@ if (!config.redisUrl) {
   logger.warn('REDIS_URL is not set, worker disabled');
   process.exit(0);
 }
+
+mkdirSync(config.paths.datRoot, { recursive: true });
+logger.info({ datRoot: config.paths.datRoot }, 'using dat root');
 
 const connection = { connection: { url: config.redisUrl } };
 
