@@ -14,6 +14,7 @@ import { SettingsModule } from './settings/settings.module.js';
 import { ProvidersModule } from './providers/providers.module.js';
 import { MetricsModule } from './metrics/metrics.module.js';
 import { SupportModule } from './support/support.module.js';
+import { SearchModule } from './search/search.module.js';
 
 @Module({
   imports: [
@@ -32,6 +33,7 @@ import { SupportModule } from './support/support.module.js';
     ProvidersModule,
     MetricsModule,
     SupportModule,
+    SearchModule,
   ],
 })
 export class AppModule {}
