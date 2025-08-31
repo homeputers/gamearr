@@ -11,8 +11,7 @@ interface ProviderSettings {
     igdbClientSecret?: string;
     tgdbApiKey?: string;
   };
-  downloads: {
-    qbittorrent: DownloadClient;
+  downloads?: {
     transmission: DownloadClient;
     sab: DownloadClient;
   };
@@ -33,6 +32,11 @@ export function SettingsProviders() {
     path: '/settings/providers',
   });
 
+  const { data: qbData } = useApiQuery<DownloadClient>({
+    queryKey: ['settings-qb'],
+    path: '/settings/downloads/qbit',
+  });
+
   const [rawgKey, setRawgKey] = useState('');
   const [igdbClientId, setIgdbClientId] = useState('');
   const [igdbClientSecret, setIgdbClientSecret] = useState('');
@@ -50,18 +54,31 @@ export function SettingsProviders() {
       setIgdbClientId(data.providers.igdbClientId || '');
       setIgdbClientSecret(data.providers.igdbClientSecret || '');
       setTgdbApiKey(data.providers.tgdbApiKey || '');
-      setQb(data.downloads.qbittorrent || {});
-      setTr(data.downloads.transmission || {});
-      setSab(data.downloads.sab || {});
+      if (data.downloads) {
+        setTr(data.downloads.transmission || {});
+        setSab(data.downloads.sab || {});
+      }
       setExperimental(data.features.experimental || false);
     }
   }, [data]);
 
-  const saveMutation = useApiMutation<ProviderSettings, ProviderSettings>((body) => ({
+  useEffect(() => {
+    if (qbData) {
+      setQb(qbData);
+    }
+  }, [qbData]);
+
+  const saveProviders = useApiMutation<ProviderSettings, ProviderSettings>((body) => ({
     path: '/settings/providers',
     init: { method: 'PUT', body: JSON.stringify(body) },
   }), {
-    onSuccess: () => toast('Settings saved'),
+    onError: (err) => toast.error(err.message),
+  });
+
+  const saveQb = useApiMutation<DownloadClient, DownloadClient>((body) => ({
+    path: '/settings/downloads/qbit',
+    init: { method: 'PUT', body: JSON.stringify(body) },
+  }), {
     onError: (err) => toast.error(err.message),
   });
 
@@ -82,13 +99,31 @@ export function SettingsProviders() {
     );
   };
 
-  const handleSave = () => {
-    saveMutation.mutate({
-      providers: { rawgKey, igdbClientId, igdbClientSecret, tgdbApiKey },
-      downloads: { qbittorrent: qb, transmission: tr, sab },
-      features: { experimental },
+  const handleSave = async () => {
+    try {
+      await Promise.all([
+        saveProviders.mutateAsync({
+          providers: { rawgKey, igdbClientId, igdbClientSecret, tgdbApiKey },
+          downloads: { transmission: tr, sab },
+          features: { experimental },
+        }),
+        saveQb.mutateAsync(qb),
+      ]);
+      toast('Settings saved');
+    } catch {}
+  };
+
+  const testQb = () => {
+    qbTest.mutate(undefined, {
+      onSuccess: (res) => {
+        if (res.ok) toast('Connection OK');
+        else toast.error('Connection failed');
+      },
+      onError: (err) => toast.error(err.message),
     });
   };
+
+  const qbTest = useApiMutation<{ ok: boolean }>(() => ({ path: '/downloads/test' }));
 
   return (
     <div className="space-y-6">
@@ -150,6 +185,7 @@ export function SettingsProviders() {
             value={qb.category || ''}
             onChange={(e) => setQb({ ...qb, category: e.target.value })}
           />
+          <Button onClick={testQb}>Test Connection</Button>
         </div>
         <div className="space-y-2">
           <h3 className="font-medium">Transmission</h3>
@@ -213,7 +249,7 @@ export function SettingsProviders() {
         </label>
       </section>
 
-      <Button onClick={handleSave} disabled={saveMutation.isPending}>
+      <Button onClick={handleSave} disabled={saveProviders.isPending || saveQb.isPending}>
         Save
       </Button>
     </div>

@@ -27,13 +27,32 @@ export class SettingsService {
     return { providers, downloads, features };
   }
 
-  async setProviders(body: { providers: any; downloads: any; features: Record<string, boolean> }) {
+  async setProviders(body: { providers: any; downloads?: any; features: Record<string, boolean> }) {
     const settings = await readSettings();
     const updated = {
       ...settings,
       providers: body.providers,
-      downloads: body.downloads,
+      downloads: { ...settings.downloads, ...(body.downloads || {}) },
       features: body.features,
+    };
+    await writeSettings(updated);
+    return {
+      providers: updated.providers,
+      downloads: updated.downloads,
+      features: updated.features,
+    };
+  }
+
+  async getQbit() {
+    const settings = await readSettings();
+    return settings.downloads.qbittorrent;
+  }
+
+  async setQbit(body: any) {
+    const settings = await readSettings();
+    const updated = {
+      ...settings,
+      downloads: { ...settings.downloads, qbittorrent: body },
     };
     await writeSettings(updated);
     return body;

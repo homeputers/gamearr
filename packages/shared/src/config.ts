@@ -32,6 +32,7 @@ const envSchema = z.object({
   DATA_ROOT: z.string().min(1),
   MAX_DAT_UPLOAD_MB: z.coerce.number().int().positive().default(512),
   DAT_PRUNE_KEEP: z.coerce.number().int().nonnegative().default(2),
+  SETTINGS_KEY: z.string().default('secret'),
 });
 
 const env = envSchema.parse(process.env);
@@ -43,6 +44,7 @@ export const config = {
   redisUrl: env.REDIS_URL,
   maxDatUploadMB: env.MAX_DAT_UPLOAD_MB,
   datPruneKeep: env.DAT_PRUNE_KEEP,
+  settingsKey: env.SETTINGS_KEY,
   paths: {
     libRoot: env.LIB_ROOT,
     downloadsRoot: env.DOWNLOADS_ROOT,
