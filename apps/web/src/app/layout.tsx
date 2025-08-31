@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { NavLink, Routes, Route, Navigate, useNavigate } from 'react-router-dom';
-import { Folder, FileQuestion, Gamepad2, Activity as ActivityIcon, Download, Settings as SettingsIcon, Menu, Sun, Moon, User, BarChart3, LifeBuoy } from 'lucide-react';
+import { Folder, FileQuestion, Gamepad2, Activity as ActivityIcon, Download, Settings as SettingsIcon, Menu, Sun, Moon, User, BarChart3, LifeBuoy, Search as SearchIcon } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { Libraries } from '../pages/Libraries';
 import { Unmatched } from '../pages/Unmatched';
@@ -8,6 +8,7 @@ import { Games } from '../pages/Games';
 import { GamesDuplicates } from '../pages/GamesDuplicates';
 import { Activity } from '../pages/Activity';
 import { Downloads } from '../pages/Downloads';
+import { Search as SearchPage } from '../pages/Search';
 import { Settings } from '../pages/Settings';
 import { SettingsOrganize } from '../pages/SettingsOrganize';
 import { SettingsExporters } from '../pages/SettingsExporters';
@@ -86,6 +87,7 @@ export function Layout() {
     { to: '/games', label: t('games', { ns: 'nav' }), icon: Gamepad2 },
     { to: '/insights', label: t('insights', { ns: 'nav' }), icon: BarChart3 },
     { to: '/activity', label: t('activity', { ns: 'nav' }), icon: ActivityIcon },
+    { to: '/search', label: t('search', { ns: 'nav' }), icon: SearchIcon },
     { to: '/downloads', label: t('downloads', { ns: 'nav' }), icon: Download },
     { to: '/settings', label: t('settings', { ns: 'nav' }), icon: SettingsIcon },
     { to: '/support', label: t('support', { ns: 'nav' }), icon: LifeBuoy },
@@ -171,6 +173,7 @@ export function Layout() {
           <Route path="/games/duplicates" element={<GamesDuplicates />} />
           <Route path="/insights" element={<Insights />} />
           <Route path="/activity" element={<Activity />} />
+          <Route path="/search" element={<SearchPage />} />
           <Route path="/downloads" element={<Downloads />} />
           <Route path="/settings" element={<Settings />} />
             <Route path="/settings/organize" element={<SettingsOrganize />} />
