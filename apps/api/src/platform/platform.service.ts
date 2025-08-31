@@ -137,9 +137,17 @@ export class PlatformService {
       'application/xml': 'xml',
       'application/zip': 'zip',
       'application/x-7z-compressed': '7z',
+      'text/plain': 'xml',
+      'application/octet-stream': 'xml',
     };
 
-    const ext = allowed[file.mimetype];
+    let ext = allowed[file.mimetype];
+    if (!ext) {
+      const lower = file.originalname.toLowerCase();
+      if (lower.endsWith('.dat') || lower.endsWith('.xml')) ext = 'xml';
+      else if (lower.endsWith('.zip')) ext = 'zip';
+      else if (lower.endsWith('.7z')) ext = '7z';
+    }
     if (!ext) {
       await fs.unlink(file.path).catch(() => {});
       throw new BadRequestException('Unsupported file type');
