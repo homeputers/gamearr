@@ -23,9 +23,19 @@ export class SettingsController {
   @Put('providers')
   setProviders(
     @Body()
-    body: { providers: any; downloads: any; features: Record<string, boolean> },
+    body: { providers: any; downloads?: any; features: Record<string, boolean> },
   ) {
     return this.service.setProviders(body);
+  }
+
+  @Get('downloads/qbit')
+  getQbit() {
+    return this.service.getQbit();
+  }
+
+  @Put('downloads/qbit')
+  setQbit(@Body() body: any) {
+    return this.service.setQbit(body);
   }
 }
 

@@ -30,6 +30,11 @@ export class DownloadsController {
     return this.service.list();
   }
 
+  @Get('test')
+  test() {
+    return this.service.test();
+  }
+
   @Delete(':id')
   remove(@Param('id') id: string) {
     return this.service.remove(id);

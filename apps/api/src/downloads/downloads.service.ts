@@ -72,4 +72,14 @@ export class DownloadsService {
     await this.prisma.download.delete({ where: { id } });
     return { status: 'removed' };
   }
+
+  async test() {
+    try {
+      const client = await this.getClient();
+      await client.listTorrents();
+      return { ok: true };
+    } catch (err: any) {
+      return { ok: false, error: err.message };
+    }
+  }
 }
