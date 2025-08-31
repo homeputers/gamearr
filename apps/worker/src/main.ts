@@ -47,5 +47,5 @@ new Worker(
 
 logger.info({ queues: [scanQueue.name, hashQueue.name, importQueue.name, datQueue.name] }, 'worker started');
 startWatchCompleted();
-startWatchQbittorrent();
+startWatchQbittorrent(importQueue);
 startDatPrune(datQueue);
