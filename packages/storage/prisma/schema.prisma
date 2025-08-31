@@ -105,3 +105,11 @@ model DatEntry {
   @@index([hashMd5])
   @@unique([datFileId, canonicalName])
 }
+
+model Download {
+  id        String   @id @default(cuid())
+  state     String
+  client    String
+  payload   Json
+  createdAt DateTime @default(now()) @map("created_at")
+}

@@ -1,14 +1,15 @@
-import {
-  Body,
-  Controller,
-  Post,
-  Get,
-  Param,
-  Delete,
-  Inject,
-} from '@nestjs/common';
+import { Body, Controller, Post, Get, Param, Delete, Inject } from '@nestjs/common';
+import { ApiTags, ApiBody } from '@nestjs/swagger';
+import { z } from 'zod';
 import { DownloadsService } from './downloads.service.js';
+import { ZodValidationPipe } from '../zod-validation.pipe.js';
 
+const magnetSchema = z.object({
+  magnet: z.string(),
+  category: z.string().optional(),
+});
+
+@ApiTags('downloads')
 @Controller('downloads')
 export class DownloadsController {
   constructor(
@@ -16,8 +17,12 @@ export class DownloadsController {
   ) {}
 
   @Post('magnet')
-  addMagnet(@Body() body: { magnet: string }) {
-    return this.service.addMagnet(body.magnet);
+  @ApiBody({ schema: { properties: { magnet: { type: 'string' }, category: { type: 'string', nullable: true } } } })
+  addMagnet(
+    @Body(new ZodValidationPipe(magnetSchema))
+    body: { magnet: string; category?: string },
+  ) {
+    return this.service.addMagnet(body.magnet, body.category);
   }
 
   @Get()
@@ -25,18 +30,8 @@ export class DownloadsController {
     return this.service.list();
   }
 
-  @Post(':hash/pause')
-  pause(@Param('hash') hash: string) {
-    return this.service.pause(hash);
-  }
-
-  @Post(':hash/resume')
-  resume(@Param('hash') hash: string) {
-    return this.service.resume(hash);
-  }
-
-  @Delete(':hash')
-  remove(@Param('hash') hash: string) {
-    return this.service.remove(hash);
+  @Delete(':id')
+  remove(@Param('id') id: string) {
+    return this.service.remove(id);
   }
 }
