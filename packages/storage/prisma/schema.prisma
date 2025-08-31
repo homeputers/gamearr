@@ -112,4 +112,5 @@ model Download {
   client    String
   payload   Json
   createdAt DateTime @default(now()) @map("created_at")
+  doneAt    DateTime? @map("done_at")
 }

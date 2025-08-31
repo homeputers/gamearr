@@ -59,6 +59,13 @@ export function startWatchCompleted(interval = 5000) {
       const entries = await fs.readdir(completedDir);
       for (const entry of entries) {
         const full = path.join(completedDir, entry);
+        let stat;
+        try {
+          stat = await fs.stat(full);
+        } catch {
+          continue;
+        }
+        if (!stat.isFile()) continue;
         try {
           await processFile(full, completedDir, stagingDir);
         } catch (err: any) {
