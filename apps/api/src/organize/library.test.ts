@@ -46,6 +46,30 @@ test('POST /organize/library/:id dryRun returns renames', async () => {
   await app.close();
 });
 
+test('POST /organize/library/:id with no artifacts returns 404', async () => {
+  const prismaStub = {
+    artifact: {
+      findMany: async () => [],
+    },
+  };
+  const moduleRef = await NestTest.createTestingModule({
+    controllers: [OrganizeController],
+    providers: [OrganizeService, { provide: PrismaService, useValue: prismaStub }],
+  }).compile();
+  const app = moduleRef.createNestApplication();
+  await app.init();
+  await app.listen(0);
+  const server = app.getHttpServer();
+  const { port } = server.address();
+  const res = await fetch(`http://localhost:${port}/organize/library/lib`, {
+    method: 'POST',
+    headers: { 'content-type': 'application/json' },
+    body: JSON.stringify({ template: 'tpl', dryRun: true }),
+  });
+  assert.equal(res.status, 404);
+  await app.close();
+});
+
 test('POST /organize/library/:id moves files', async () => {
   const tmp = await fs.mkdtemp(path.join(os.tmpdir(), 'organize-lib-'));
   const libraryPath = path.join(tmp, 'library');

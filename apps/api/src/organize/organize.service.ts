@@ -1,4 +1,9 @@
-import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  BadRequestException,
+  Inject,
+} from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service.js';
 import { renderTemplate } from '@gamearr/domain';
 import path from 'node:path';
@@ -6,7 +11,7 @@ import fs from 'node:fs/promises';
 
 @Injectable()
 export class OrganizeService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(@Inject(PrismaService) private readonly prisma: PrismaService) {}
 
   async preview(artifactId: string, template: string, romsRoot = '/roms') {
     const artifact = await this.prisma.artifact.findUnique({
@@ -48,6 +53,9 @@ export class OrganizeService {
         release: { include: { game: true } },
       },
     });
+    if (artifacts.length === 0) {
+      throw new NotFoundException('No artifacts found');
+    }
     const renames: { from: string; to: string }[] = [];
     for (const artifact of artifacts as any[]) {
       const src = path.join(artifact.library.path, artifact.path);

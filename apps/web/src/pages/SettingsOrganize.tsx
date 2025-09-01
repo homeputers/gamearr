@@ -136,7 +136,7 @@ export function SettingsOrganize() {
         <button
           className="px-4 py-2 bg-purple-500 text-white rounded"
           onClick={() => dryRunMutation.mutate({ libraryId })}
-          disabled={!libraryId}
+          disabled={!libraryId || !artifacts?.length}
         >
           Apply to Library
         </button>
