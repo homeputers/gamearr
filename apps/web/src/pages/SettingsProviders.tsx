@@ -101,20 +101,18 @@ export function SettingsProviders() {
 
   const handleSave = async () => {
     try {
-      await Promise.all([
-        saveProviders.mutateAsync({
-          providers: { rawgKey, igdbClientId, igdbClientSecret, tgdbApiKey },
-          downloads: { transmission: tr, sab },
-          features: { experimental },
-        }),
-        saveQb.mutateAsync(qb),
-      ]);
+      await saveProviders.mutateAsync({
+        providers: { rawgKey, igdbClientId, igdbClientSecret, tgdbApiKey },
+        downloads: { transmission: tr, sab },
+        features: { experimental },
+      });
+      await saveQb.mutateAsync(qb);
       toast('Settings saved');
     } catch {}
   };
 
   const testQb = () => {
-    qbTest.mutate(undefined, {
+    qbTest.mutate(qb, {
       onSuccess: (res) => {
         if (res.ok) toast('Connection OK');
         else toast.error('Connection failed');
@@ -123,7 +121,10 @@ export function SettingsProviders() {
     });
   };
 
-  const qbTest = useApiMutation<{ ok: boolean }>(() => ({ path: '/downloads/test' }));
+  const qbTest = useApiMutation<{ ok: boolean }, DownloadClient>((body) => ({
+    path: '/downloads/test',
+    init: { method: 'POST', body: JSON.stringify(body) },
+  }));
 
   return (
     <div className="space-y-6">

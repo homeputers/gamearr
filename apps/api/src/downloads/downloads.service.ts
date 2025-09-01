@@ -147,9 +147,24 @@ export class DownloadsService {
     return { status: 'removed' };
   }
 
-  async test() {
+  async test(opts?: {
+    baseUrl?: string;
+    username?: string;
+    password?: string;
+    category?: string;
+  }) {
     try {
-      const client = await this.getClient();
+      let client: QbitClient;
+      if (opts?.baseUrl && opts?.username && opts?.password) {
+        client = new QbitClient({
+          baseURL: opts.baseUrl,
+          username: opts.username,
+          password: opts.password,
+          category: opts.category,
+        });
+      } else {
+        client = await this.getClient();
+      }
       await client.listTorrents();
       return { ok: true };
     } catch (err: any) {
