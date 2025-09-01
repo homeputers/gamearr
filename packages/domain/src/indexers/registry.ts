@@ -6,6 +6,10 @@ export function registerIndexer(ix: Indexer) {
   REG.set(ix.key, ix);
 }
 
+export function unregisterIndexer(key: string) {
+  REG.delete(key);
+}
+
 export function getIndexer(key: string) {
   return REG.get(key);
 }
