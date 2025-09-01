@@ -18,6 +18,13 @@ const fromSearchSchema = z
   })
   .refine((d) => d.id || d.link, { message: 'id or link required' });
 
+const clientSchema = z.object({
+  baseUrl: z.string().optional(),
+  username: z.string().optional(),
+  password: z.string().optional(),
+  category: z.string().optional(),
+});
+
 @ApiTags('downloads')
 @Controller('downloads')
 export class DownloadsController {
@@ -62,9 +69,19 @@ export class DownloadsController {
     return this.service.list();
   }
 
-  @Get('test')
-  test() {
-    return this.service.test();
+  @Post('test')
+  @ApiBody({
+    schema: {
+      properties: {
+        baseUrl: { type: 'string', nullable: true },
+        username: { type: 'string', nullable: true },
+        password: { type: 'string', nullable: true },
+        category: { type: 'string', nullable: true },
+      },
+    },
+  })
+  test(@Body(new ZodValidationPipe(clientSchema)) body: any) {
+    return this.service.test(body);
   }
 
   @Post(':id/pause')
