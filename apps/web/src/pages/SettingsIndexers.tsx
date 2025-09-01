@@ -184,15 +184,25 @@ function IndexerModal({
   open: boolean;
   onClose: () => void;
   initial: IndexerConfig | null;
-  onSave: (values: { key: string; kind: 'torznab' | 'rss'; name: string; config: any }) => void;
+  onSave: (values: {
+    key: string;
+    kind: 'torznab' | 'rss';
+    name: string;
+    config: any;
+  }) => void;
 }) {
-  const [kind, setKind] = useState<'torznab' | 'rss'>(initial?.kind || 'torznab');
+  const [kind, setKind] = useState<'torznab' | 'rss'>(
+    initial?.kind || 'torznab',
+  );
   const [key, setKey] = useState(initial?.key || '');
   const [name, setName] = useState(initial?.name || '');
   const [baseUrl, setBaseUrl] = useState(initial?.config?.baseUrl || '');
   const [apiKey, setApiKey] = useState(initial?.config?.apiKey || '');
   const [categories, setCategories] = useState(
     initial?.config?.categories ? initial.config.categories.join(',') : '',
+  );
+  const [indexerIds, setIndexerIds] = useState(
+    initial?.config?.indexerIds ? initial.config.indexerIds.join(',') : '',
   );
   const [url, setUrl] = useState(initial?.config?.url || '');
 
@@ -204,6 +214,9 @@ function IndexerModal({
       setBaseUrl(initial.config?.baseUrl || '');
       setApiKey(initial.config?.apiKey || '');
       setCategories(initial.config?.categories ? initial.config.categories.join(',') : '');
+      setIndexerIds(
+        initial.config?.indexerIds ? initial.config.indexerIds.join(',') : '',
+      );
       setUrl(initial.config?.url || '');
     } else {
       setKind('torznab');
@@ -212,6 +225,7 @@ function IndexerModal({
       setBaseUrl('');
       setApiKey('');
       setCategories('');
+      setIndexerIds('');
       setUrl('');
     }
   }, [initial, open]);
@@ -229,6 +243,11 @@ function IndexerModal({
             .split(',')
             .map((c) => c.trim())
             .filter(Boolean),
+          indexerIds: indexerIds
+            .split(',')
+            .map((c) => c.trim())
+            .filter(Boolean)
+            .map((n) => Number(n)),
         },
       });
     } else {
@@ -286,6 +305,14 @@ function IndexerModal({
               <div>
                 <label className="block mb-1">API Key</label>
                 <Input value={apiKey} onChange={(e) => setApiKey(e.target.value)} />
+              </div>
+              <div>
+                <label className="block mb-1">Indexer IDs</label>
+                <Input
+                  value={indexerIds}
+                  onChange={(e) => setIndexerIds(e.target.value)}
+                  placeholder="Comma separated"
+                />
               </div>
               <div>
                 <label className="block mb-1">Categories</label>
