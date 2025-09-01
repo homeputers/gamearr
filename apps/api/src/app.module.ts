@@ -15,6 +15,7 @@ import { ProvidersModule } from './providers/providers.module.js';
 import { MetricsModule } from './metrics/metrics.module.js';
 import { SupportModule } from './support/support.module.js';
 import { SearchModule } from './search/search.module.js';
+import { OrganizeModule } from './organize/organize.module.js';
 
 @Module({
   imports: [
@@ -34,6 +35,7 @@ import { SearchModule } from './search/search.module.js';
     MetricsModule,
     SupportModule,
     SearchModule,
+    OrganizeModule,
   ],
 })
 export class AppModule {}

@@ -10,11 +10,6 @@ export class ImportsController {
     return this.service.organize(body.artifactId, body.template, body.romsRoot);
   }
 
-  @Post('organize/preview')
-  preview(@Body() body: { artifactId: string; template: string; romsRoot?: string }) {
-    return this.service.preview(body.artifactId, body.template, body.romsRoot);
-  }
-
   @Get('activity')
   activity() {
     return this.service.activity();
