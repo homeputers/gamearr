@@ -4,6 +4,7 @@ export { QbitClient } from './downloads/qbittorrent';
 import * as emulationstationModule from './exporters/emulationstation';
 import * as nointroDatModule from './dat/nointro';
 import demoIndexer from './indexers/demo.js';
+import { createTorznabIndexer } from './indexers/torznab.js';
 
 // Create and export the rawg object
 export const rawg = {
@@ -29,3 +30,5 @@ export const dat = {
 export const indexers = {
   demo: demoIndexer,
 };
+
+export { createTorznabIndexer };
