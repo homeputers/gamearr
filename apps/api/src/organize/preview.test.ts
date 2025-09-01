@@ -2,8 +2,8 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import path from 'node:path';
 import { Test as NestTest } from '@nestjs/testing';
-import { ImportsController } from './imports.controller.js';
-import { ImportsService } from './imports.service.js';
+import { OrganizeController } from './organize.controller.js';
+import { OrganizeService } from './organize.service.js';
 import { PrismaService } from '../prisma/prisma.service.js';
 
 const artifact = {
@@ -14,7 +14,7 @@ const artifact = {
   release: { game: { title: 'Sonic' } },
 };
 
-test('POST /imports/organize/preview returns path', async () => {
+test('POST /organize/preview returns path', async () => {
   const prismaStub = {
     artifact: {
       findUnique: async () => artifact,
@@ -22,8 +22,8 @@ test('POST /imports/organize/preview returns path', async () => {
   };
 
   const moduleRef = await NestTest.createTestingModule({
-    controllers: [ImportsController],
-    providers: [ImportsService, { provide: PrismaService, useValue: prismaStub }],
+    controllers: [OrganizeController],
+    providers: [OrganizeService, { provide: PrismaService, useValue: prismaStub }],
   }).compile();
 
   const app = moduleRef.createNestApplication();
@@ -33,7 +33,7 @@ test('POST /imports/organize/preview returns path', async () => {
   const { port } = server.address();
 
   const template = '${game}${disc? ` (Disc ${disc})`:``}';
-  const res = await fetch(`http://localhost:${port}/imports/organize/preview`, {
+  const res = await fetch(`http://localhost:${port}/organize/preview`, {
     method: 'POST',
     headers: { 'content-type': 'application/json' },
     body: JSON.stringify({ artifactId: '1', template, romsRoot: '/roms' }),

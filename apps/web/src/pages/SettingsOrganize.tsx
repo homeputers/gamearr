@@ -5,6 +5,8 @@ import { apiFetch, ApiError, useApiQuery, useApiMutation } from '../lib/api';
 export function SettingsOrganize() {
   const [template, setTemplate] = useState('');
   const [artifactId, setArtifactId] = useState('');
+  const [libraryId, setLibraryId] = useState('');
+  const [renames, setRenames] = useState<{ from: string; to: string }[] | null>(null);
 
   const { data: settings } = useApiQuery<{ template: string }>({
     queryKey: ['settings-organize'],
@@ -22,10 +24,15 @@ export function SettingsOrganize() {
     path: '/artifacts/unmatched',
   });
 
+  const { data: libraries } = useApiQuery<any[]>({
+    queryKey: ['libraries'],
+    path: '/libraries',
+  });
+
   const previewQuery = useQuery<{ path: string }, ApiError>({
     queryKey: ['organize-preview', artifactId, template],
     queryFn: () =>
-      apiFetch('/imports/organize/preview', {
+      apiFetch('/organize/preview', {
         method: 'POST',
         body: JSON.stringify({ artifactId, template }),
       }),
@@ -37,6 +44,32 @@ export function SettingsOrganize() {
       path: '/settings/organize',
       init: { method: 'PUT', body: JSON.stringify({ template: vars.template }) },
     }),
+  );
+
+  const dryRunMutation = useApiMutation<
+    { renames: { from: string; to: string }[] },
+    { libraryId: string }
+  >(
+    ({ libraryId }) => ({
+      path: `/organize/library/${libraryId}`,
+      init: { method: 'POST', body: JSON.stringify({ template, dryRun: true }) },
+    }),
+    {
+      onSuccess: (data) => setRenames(data.renames),
+    },
+  );
+
+  const applyMutation = useApiMutation<
+    { renames: { from: string; to: string }[] },
+    { libraryId: string }
+  >(
+    ({ libraryId }) => ({
+      path: `/organize/library/${libraryId}`,
+      init: { method: 'POST', body: JSON.stringify({ template }) },
+    }),
+    {
+      onSuccess: () => setRenames(null),
+    },
   );
 
   return (
@@ -67,6 +100,49 @@ export function SettingsOrganize() {
       <div className="p-2 border rounded min-h-[2rem]">
         {previewQuery.data?.path}
         {previewQuery.error && <div className="text-red-600">{previewQuery.error.message}</div>}
+      </div>
+      <div>
+        <label className="block mb-1">Library</label>
+        <select
+          className="border rounded p-2 w-full"
+          value={libraryId}
+          onChange={(e) => setLibraryId(e.target.value)}
+        >
+          <option value="">Select library</option>
+          {libraries?.map((l) => (
+            <option key={l.id} value={l.id}>
+              {l.path}
+            </option>
+          ))}
+        </select>
+      </div>
+      {renames && (
+        <div className="p-2 border rounded">
+          <pre className="whitespace-pre-wrap text-xs">
+            {renames.map((r) => `${r.from} -> ${r.to}`).join('\n')}
+          </pre>
+          <button
+            className="mt-2 px-4 py-2 bg-green-500 text-white rounded"
+            onClick={() => applyMutation.mutate({ libraryId })}
+          >
+            Confirm Apply
+          </button>
+          {applyMutation.error && (
+            <div className="text-red-600 mt-1">{applyMutation.error.message}</div>
+          )}
+        </div>
+      )}
+      <div>
+        <button
+          className="px-4 py-2 bg-purple-500 text-white rounded"
+          onClick={() => dryRunMutation.mutate({ libraryId })}
+          disabled={!libraryId}
+        >
+          Apply to Library
+        </button>
+        {dryRunMutation.error && (
+          <div className="text-red-600 mt-1">{dryRunMutation.error.message}</div>
+        )}
       </div>
       <div>
         <button
