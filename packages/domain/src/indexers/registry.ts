@@ -1,15 +1,16 @@
 import type { Indexer } from './types.js';
 
-const registry = new Map<string, Indexer>();
+const REG = new Map<string, Indexer>();
 
-export function registerIndexer(indexer: Indexer): void {
-  registry.set(indexer.name, indexer);
+export function registerIndexer(ix: Indexer) {
+  REG.set(ix.key, ix);
 }
 
-export function listIndexers(): Indexer[] {
-  return Array.from(registry.values());
+export function getIndexer(key: string) {
+  return REG.get(key);
 }
 
-export function getIndexer(name: string): Indexer | undefined {
-  return registry.get(name);
+export function listIndexers() {
+  return Array.from(REG.values());
 }
+
