@@ -13,6 +13,9 @@ interface Library {
   platformId: string;
   path: string;
   lastScannedAt?: string | null;
+  autoOrganizeOnImport: boolean;
+  artifactCount: number;
+  unmatchedCount: number;
 }
 
 interface Platform {
@@ -23,6 +26,7 @@ interface Platform {
 const schema = z.object({
   platformId: z.string().min(1, 'Platform is required'),
   rootPath: z.string().min(1, 'Path is required'),
+  autoOrganizeOnImport: z.boolean().default(true),
 });
 
 type FormValues = z.infer<typeof schema>;
@@ -44,15 +48,19 @@ export function Libraries() {
 
   const form = useForm<FormValues>({
     resolver: zodResolver(schema),
-    defaultValues: { platformId: '', rootPath: '' },
+    defaultValues: { platformId: '', rootPath: '', autoOrganizeOnImport: true },
   });
 
   useEffect(() => {
     if (open) {
       if (editing) {
-        form.reset({ platformId: editing.platformId, rootPath: editing.path });
+        form.reset({
+          platformId: editing.platformId,
+          rootPath: editing.path,
+          autoOrganizeOnImport: editing.autoOrganizeOnImport,
+        });
       } else {
-        form.reset({ platformId: '', rootPath: '' });
+        form.reset({ platformId: '', rootPath: '', autoOrganizeOnImport: true });
       }
     }
   }, [open, editing, form]);
@@ -62,7 +70,11 @@ export function Libraries() {
       path: '/libraries',
       init: {
         method: 'POST',
-        body: JSON.stringify({ platformId: values.platformId, path: values.rootPath }),
+        body: JSON.stringify({
+          platformId: values.platformId,
+          path: values.rootPath,
+          autoOrganizeOnImport: values.autoOrganizeOnImport,
+        }),
       },
     }),
     {
@@ -74,6 +86,9 @@ export function Libraries() {
           platformId: values.platformId,
           path: values.rootPath,
           lastScannedAt: null,
+          autoOrganizeOnImport: values.autoOrganizeOnImport,
+          artifactCount: 0,
+          unmatchedCount: 0,
         };
         queryClient.setQueryData<Library[]>(['libraries'], (old) =>
           old ? [...old, optimistic] : [optimistic],
@@ -98,7 +113,11 @@ export function Libraries() {
         path: `/libraries/${id}`,
         init: {
           method: 'PUT',
-          body: JSON.stringify({ platformId: values.platformId, path: values.rootPath }),
+          body: JSON.stringify({
+            platformId: values.platformId,
+            path: values.rootPath,
+            autoOrganizeOnImport: values.autoOrganizeOnImport,
+          }),
         },
       }),
       {
@@ -146,6 +165,21 @@ export function Libraries() {
     },
   );
 
+  const toggleMutation = useApiMutation<Library, { id: string; value: boolean }>(
+    ({ id, value }) => ({
+      path: `/libraries/${id}`,
+      init: {
+        method: 'PUT',
+        body: JSON.stringify({ autoOrganizeOnImport: value }),
+      },
+    }),
+    {
+      onError: (err) => toast.error(err.message),
+      onSuccess: () =>
+        queryClient.invalidateQueries({ queryKey: ['libraries'] }),
+    },
+  );
+
   const onSubmit = (values: FormValues) => {
     if (editing) {
       updateMutation.mutate({ id: editing.id, values });
@@ -182,6 +216,9 @@ export function Libraries() {
             <th className="px-2 py-1">Platform</th>
             <th className="px-2 py-1">Path</th>
             <th className="px-2 py-1">Last Scanned</th>
+            <th className="px-2 py-1">Artifacts</th>
+            <th className="px-2 py-1">Unmatched</th>
+            <th className="px-2 py-1">Auto-organize</th>
             <th className="px-2 py-1">Actions</th>
           </tr>
         </thead>
@@ -193,9 +230,20 @@ export function Libraries() {
               <td className="px-2 py-1">
                 {lib.lastScannedAt ? new Date(lib.lastScannedAt).toLocaleString() : '-'}
               </td>
+              <td className="px-2 py-1">{lib.artifactCount}</td>
+              <td className="px-2 py-1">{lib.unmatchedCount}</td>
+              <td className="px-2 py-1">
+                <input
+                  type="checkbox"
+                  checked={lib.autoOrganizeOnImport}
+                  onChange={(e) =>
+                    toggleMutation.mutate({ id: lib.id, value: e.target.checked })
+                  }
+                />
+              </td>
               <td className="px-2 py-1 space-x-2">
                 <Button className="h-8 px-2" onClick={() => scanMutation.mutate(lib.id)}>
-                  Scan
+                  Scan now
                 </Button>
                 <Button
                   className="h-8 px-2"
@@ -251,6 +299,16 @@ export function Libraries() {
                     {form.formState.errors.rootPath.message}
                   </p>
                 )}
+              </div>
+              <div className="flex items-center gap-2">
+                <input
+                  type="checkbox"
+                  {...form.register('autoOrganizeOnImport')}
+                  id="autoOrganizeOnImport"
+                />
+                <label htmlFor="autoOrganizeOnImport" className="text-sm">
+                  Auto-organize on import
+                </label>
               </div>
               <div className="flex justify-end gap-2">
                 <Button

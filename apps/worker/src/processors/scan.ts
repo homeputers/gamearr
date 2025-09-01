@@ -50,6 +50,10 @@ export async function scanProcessor(job: Job<{ libraryId: string }>) {
       });
     }
   }
+  await prisma.library.update({
+    where: { id: libraryId },
+    data: { lastScannedAt: new Date() },
+  });
 }
 
 export default scanProcessor;

@@ -29,6 +29,8 @@ model Library {
   platformId String
   platform   Platform   @relation(fields: [platformId], references: [id])
   artifacts  Artifact[]
+  autoOrganizeOnImport Boolean  @default(true)
+  lastScannedAt        DateTime?
 }
 
 model Artifact {
