@@ -1,14 +1,14 @@
-import { useEffect } from 'react';
 import { useApiQuery, useApiMutation } from '../lib/api';
 import { useQueryClient } from '@tanstack/react-query';
 
 interface Download {
-  hash: string;
-  name: string;
+  id: string;
+  hash?: string;
+  name?: string;
   client: string;
-  progress: number;
-  dlspeed: number;
-  eta: number;
+  progress?: number;
+  dlspeed?: number;
+  eta?: number;
   state: string;
 }
 
@@ -37,60 +37,85 @@ function formatEta(seconds: number) {
 
 export function Downloads() {
   const queryClient = useQueryClient();
-  const { data } = useApiQuery<Download[]>({
+  const { data, isLoading } = useApiQuery<Download[]>({
     queryKey: ['downloads'],
     path: '/downloads',
     refetchInterval: 3000,
   });
 
-  useEffect(() => {
-    try {
-      const base = import.meta.env.VITE_API_URL ?? 'http://localhost:3000';
-      const url = new URL(base);
-      url.protocol = url.protocol === 'https:' ? 'wss:' : 'ws:';
-      url.pathname = '/ws';
-      const ws = new WebSocket(url.toString());
-      ws.onmessage = (ev) => {
-        try {
-          const payload = JSON.parse(ev.data);
-          if (payload.type === 'downloads') {
-            queryClient.setQueryData(['downloads'], payload.data);
-          }
-        } catch {
-          // ignore
-        }
-      };
-      return () => ws.close();
-    } catch {
-      // ignore errors and fall back to polling
-    }
-  }, [queryClient]);
+  const pauseMut = useApiMutation<void, { id: string }>(
+    (v) => ({
+      path: `/downloads/${v.id}/pause`,
+      init: { method: 'POST' },
+    }),
+    {
+      onMutate: async (vars) => {
+        await queryClient.cancelQueries({ queryKey: ['downloads'] });
+        const prev = queryClient.getQueryData<Download[]>(['downloads']);
+        queryClient.setQueryData<Download[]>(['downloads'], (old = []) =>
+          old.map((d) => (d.id === vars.id ? { ...d, state: 'paused' } : d)),
+        );
+        return { prev };
+      },
+      onError: (_err, _vars, ctx) => {
+        if (ctx?.prev) queryClient.setQueryData(['downloads'], ctx.prev);
+      },
+      onSettled: () => {
+        queryClient.invalidateQueries({ queryKey: ['downloads'] });
+      },
+    },
+  );
 
-  const pauseMut = useApiMutation<void, { hash: string }>((v) => ({
-    path: `/downloads/${v.hash}/pause`,
-    init: { method: 'POST' },
-  }), {
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['downloads'] }),
-  });
+  const resumeMut = useApiMutation<void, { id: string }>(
+    (v) => ({
+      path: `/downloads/${v.id}/resume`,
+      init: { method: 'POST' },
+    }),
+    {
+      onMutate: async (vars) => {
+        await queryClient.cancelQueries({ queryKey: ['downloads'] });
+        const prev = queryClient.getQueryData<Download[]>(['downloads']);
+        queryClient.setQueryData<Download[]>(['downloads'], (old = []) =>
+          old.map((d) => (d.id === vars.id ? { ...d, state: 'downloading' } : d)),
+        );
+        return { prev };
+      },
+      onError: (_err, _vars, ctx) => {
+        if (ctx?.prev) queryClient.setQueryData(['downloads'], ctx.prev);
+      },
+      onSettled: () => {
+        queryClient.invalidateQueries({ queryKey: ['downloads'] });
+      },
+    },
+  );
 
-  const resumeMut = useApiMutation<void, { hash: string }>((v) => ({
-    path: `/downloads/${v.hash}/resume`,
-    init: { method: 'POST' },
-  }), {
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['downloads'] }),
-  });
-
-  const removeMut = useApiMutation<void, { hash: string }>((v) => ({
-    path: `/downloads/${v.hash}`,
-    init: { method: 'DELETE' },
-  }), {
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['downloads'] }),
-  });
+  const removeMut = useApiMutation<void, { id: string }>(
+    (v) => ({
+      path: `/downloads/${v.id}`,
+      init: { method: 'DELETE' },
+    }),
+    {
+      onMutate: async (vars) => {
+        await queryClient.cancelQueries({ queryKey: ['downloads'] });
+        const prev = queryClient.getQueryData<Download[]>(['downloads']);
+        queryClient.setQueryData<Download[]>(['downloads'], (old = []) =>
+          old.filter((d) => d.id !== vars.id),
+        );
+        return { prev };
+      },
+      onError: (_err, _vars, ctx) => {
+        if (ctx?.prev) queryClient.setQueryData(['downloads'], ctx.prev);
+      },
+      onSettled: () => {
+        queryClient.invalidateQueries({ queryKey: ['downloads'] });
+      },
+    },
+  );
 
   return (
     <div className="p-4">
       <h1 className="text-xl mb-4">Downloads</h1>
-      {data && data.length === 0 && (
+      {!isLoading && data && data.length === 0 && (
         <p className="text-gray-500">No downloads</p>
       )}
       <div className="overflow-x-auto">
@@ -107,9 +132,10 @@ export function Downloads() {
             </tr>
           </thead>
           <tbody>
-            {data?.map((d) => (
-              <tr key={d.hash} className="border-t">
-                <td className="p-2">{d.name}</td>
+            {!isLoading &&
+              data?.map((d) => (
+                <tr key={d.id} className="border-t">
+                  <td className="p-2">{d.name}</td>
                 <td className="p-2">{d.client}</td>
                 <td className="p-2 w-48">
                   <div className="w-full bg-gray-200 rounded h-2">
@@ -133,27 +159,53 @@ export function Downloads() {
                   {d.state.startsWith('paused') ? (
                     <button
                       className="text-blue-600"
-                      onClick={() => resumeMut.mutate({ hash: d.hash })}
+                      onClick={() => resumeMut.mutate({ id: d.id })}
                     >
                       Resume
                     </button>
                   ) : (
                     <button
                       className="text-blue-600"
-                      onClick={() => pauseMut.mutate({ hash: d.hash })}
+                      onClick={() => pauseMut.mutate({ id: d.id })}
                     >
                       Pause
                     </button>
                   )}
                   <button
                     className="text-red-600"
-                    onClick={() => removeMut.mutate({ hash: d.hash })}
+                    onClick={() => removeMut.mutate({ id: d.id })}
                   >
                     Remove
                   </button>
                 </td>
-              </tr>
-            ))}
+                </tr>
+              ))}
+            {isLoading &&
+              Array.from({ length: 5 }).map((_, i) => (
+                <tr key={i} className="border-t animate-pulse">
+                  <td className="p-2">
+                    <div className="h-4 bg-gray-200 rounded w-48" />
+                  </td>
+                  <td className="p-2">
+                    <div className="h-4 bg-gray-200 rounded w-24" />
+                  </td>
+                  <td className="p-2 w-48">
+                    <div className="w-full bg-gray-200 rounded h-2" />
+                  </td>
+                  <td className="p-2">
+                    <div className="h-4 bg-gray-200 rounded w-16" />
+                  </td>
+                  <td className="p-2">
+                    <div className="h-4 bg-gray-200 rounded w-16" />
+                  </td>
+                  <td className="p-2">
+                    <div className="h-4 bg-gray-200 rounded w-24" />
+                  </td>
+                  <td className="p-2">
+                    <div className="h-4 bg-gray-200 rounded w-24" />
+                  </td>
+                </tr>
+              ))}
           </tbody>
         </table>
       </div>

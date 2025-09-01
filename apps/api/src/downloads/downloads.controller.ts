@@ -35,6 +35,16 @@ export class DownloadsController {
     return this.service.test();
   }
 
+  @Post(':id/pause')
+  pause(@Param('id') id: string) {
+    return this.service.pause(id);
+  }
+
+  @Post(':id/resume')
+  resume(@Param('id') id: string) {
+    return this.service.resume(id);
+  }
+
   @Delete(':id')
   remove(@Param('id') id: string) {
     return this.service.remove(id);
