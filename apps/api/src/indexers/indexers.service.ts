@@ -1,4 +1,4 @@
-import { Injectable, Inject } from '@nestjs/common';
+import { Injectable, Inject, OnModuleInit } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service.js';
 import { createTorznabIndexer, createRssMagnetIndexer } from '@gamearr/adapters';
 import { registerIndexer, unregisterIndexer } from '@gamearr/domain';
@@ -12,8 +12,12 @@ interface IndexerConfig {
 }
 
 @Injectable()
-export class IndexersService {
+export class IndexersService implements OnModuleInit {
   constructor(@Inject(PrismaService) private readonly prisma: PrismaService) {}
+
+  async onModuleInit() {
+    await this.bootstrap();
+  }
 
   private buildIndexer(cfg: IndexerConfig) {
     if (cfg.kind === 'torznab') {
