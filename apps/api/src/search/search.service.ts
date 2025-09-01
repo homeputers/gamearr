@@ -5,6 +5,8 @@ import {
   type IndexerResult,
   type IndexerQuery,
 } from '@gamearr/domain';
+import { Queue } from 'bullmq';
+import { config } from '@gamearr/shared';
 
 interface SearchQuery {
   title: string;
@@ -20,7 +22,14 @@ interface SearchResult extends IndexerResult {
 
 @Injectable()
 export class SearchService {
-  constructor() {}
+  private redisClient?: Promise<any>;
+  constructor() {
+    if (config.redisUrl) {
+      this.redisClient = new Queue('search-cache', {
+        connection: { url: config.redisUrl },
+      }).client;
+    }
+  }
 
   private cache = new Map<string, IndexerResult>();
 
@@ -33,6 +42,15 @@ export class SearchService {
       regionPref: q.regionPref,
       limit,
     };
+
+    const cacheKey = `search:${q.title}:${q.platform ?? ''}:${q.year ?? ''}`;
+    if (this.redisClient) {
+      const client = await this.redisClient;
+      const cached = await client.get(cacheKey);
+      if (cached) {
+        return JSON.parse(cached);
+      }
+    }
 
     const indexers = listIndexers();
     const results = (
@@ -108,7 +126,14 @@ export class SearchService {
 
     scored.sort((a, b) => b.score - a.score);
 
-    return { results: scored.slice(0, limit) };
+    const result = { results: scored.slice(0, limit) };
+
+    if (this.redisClient) {
+      const client = await this.redisClient;
+      await client.set(cacheKey, JSON.stringify(result), 'EX', 60);
+    }
+
+    return result;
   }
 
 }

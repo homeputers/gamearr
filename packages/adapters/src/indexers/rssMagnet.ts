@@ -2,7 +2,7 @@ import { readFile } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
 import { XMLParser } from 'fast-xml-parser';
 import type { Indexer, IndexerQuery, IndexerResult } from '@gamearr/domain';
-import { get } from '../http.js';
+import { throttledGet } from '../net/throttle.js';
 
 interface RssMagnetOpts {
   key: string;
@@ -28,7 +28,7 @@ export class RssMagnetIndexer implements Indexer {
   private async fetch(): Promise<string | null> {
     try {
       if (this.url.startsWith('http://') || this.url.startsWith('https://')) {
-        const res = await get(this.url, { timeoutMs: this.timeoutMs });
+        const res = await throttledGet(this.url, { timeoutMs: this.timeoutMs });
         if (!res.ok) return null;
         return await res.text();
       }
