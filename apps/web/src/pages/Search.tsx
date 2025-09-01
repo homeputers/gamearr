@@ -9,7 +9,7 @@ interface SearchResult {
   id: string;
   title: string;
   platform: string;
-  size?: number;
+  sizeBytes?: number;
   seeders?: number;
   link?: string;
 }
@@ -84,7 +84,7 @@ export function Search() {
     path: '/platforms',
   });
 
-  const searchQuery = useApiQuery<SearchResult[]>({
+  const searchQuery = useApiQuery<{ results: SearchResult[] }>({
     queryKey: ['search', query],
     path: query ? `/search${query}` : '',
     enabled: !!query,
@@ -130,7 +130,7 @@ export function Search() {
     setQuery(qs ? `?${qs}` : '?');
   }
 
-  const results = searchQuery.data ?? [];
+  const results = searchQuery.data?.results ?? [];
 
   return (
     <div>
@@ -192,7 +192,7 @@ export function Search() {
                   <td className="p-2">{r.indexer}</td>
                   <td className="p-2">{r.title}</td>
                   <td className="p-2">{r.platform}</td>
-                  <td className="p-2">{formatSize(r.size)}</td>
+                  <td className="p-2">{formatSize(r.sizeBytes)}</td>
                   <td className="p-2">{r.seeders ?? '—'}</td>
                   <td className="p-2">
                     <button
