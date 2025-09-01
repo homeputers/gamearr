@@ -3,6 +3,7 @@ import { NestFactory } from '@nestjs/core';
 import pinoHttp from 'pino-http';
 import type { Request, Response, NextFunction } from 'express';
 import { mkdirSync } from 'node:fs';
+import helmet from 'helmet';
 import { config, logger, withCorrelationId } from '@gamearr/shared';
 
 async function bootstrap() {
@@ -15,9 +16,23 @@ async function bootstrap() {
   mkdirSync(config.paths.datRoot, { recursive: true });
   logger.info({ datRoot: config.paths.datRoot }, 'using dat root');
 
+  app.use(helmet());
   app.enableCors({
     origin: process.env.FRONTEND_URL || 'http://localhost:5173',
   });
+
+  const authToken = process.env.AUTH_TOKEN;
+  if (authToken) {
+    app.use((req: Request, res: Response, next: NextFunction) => {
+      const requiresAuth =
+        ['POST', 'PUT', 'PATCH', 'DELETE'].includes(req.method) ||
+        req.path.startsWith('/downloads');
+      if (!requiresAuth) return next();
+      const header = req.headers['authorization'];
+      if (header === `Bearer ${authToken}`) return next();
+      res.status(401).json({ message: 'Unauthorized' });
+    });
+  }
 
 
   // pino-http's type definitions lag behind the latest pino releases, so we

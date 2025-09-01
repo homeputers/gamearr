@@ -13,6 +13,8 @@ The project uses a handful of environment variables for core services. Copy `.en
 | `DATA_ROOT` | Persistent data directory for services. |
 | `MAX_DAT_UPLOAD_MB` | Maximum allowed DAT upload size in megabytes (default: 512). |
 | `DAT_PRUNE_KEEP` | Number of inactive DATs to retain per platform (default: 2). |
+| `AUTH_TOKEN` | When set, required as a Bearer token for mutating API routes and downloads. |
+| `FRONTEND_URL` | Origin allowed for browser requests (default: http://localhost:5173). |
 
 Provider API keys and download client credentials are configured via the Settings page and stored in the settings file.
 

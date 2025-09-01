@@ -23,3 +23,5 @@
    ```
 
 Individual apps can be started with `pnpm dev:api`, `pnpm dev:worker`, or `pnpm dev:web`.
+
+If `AUTH_TOKEN` is set for the API, set `VITE_API_TOKEN` in your environment so the web app includes it in requests.

@@ -1,3 +1,5 @@
+import { getToken } from './token';
+
 const API_BASE = import.meta.env.VITE_API_URL ?? 'http://localhost:3000';
 
 export class ApiError extends Error {
@@ -9,7 +11,7 @@ export class ApiError extends Error {
 }
 
 export async function apiFetch<T>(path: string, init?: RequestInit): Promise<T> {
-  const token = localStorage.getItem('token');
+  const token = getToken();
   const headers = new Headers(init?.headers || {});
   if (token) {
     headers.set('Authorization', `Bearer ${token}`);
