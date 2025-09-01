@@ -1,4 +1,3 @@
-import { useEffect } from 'react';
 import { useApiQuery, useApiMutation } from '../lib/api';
 import { useQueryClient } from '@tanstack/react-query';
 
@@ -43,29 +42,6 @@ export function Downloads() {
     path: '/downloads',
     refetchInterval: 3000,
   });
-
-  useEffect(() => {
-    try {
-      const base = import.meta.env.VITE_API_URL ?? 'http://localhost:3000';
-      const url = new URL(base);
-      url.protocol = url.protocol === 'https:' ? 'wss:' : 'ws:';
-      url.pathname = '/ws';
-      const ws = new WebSocket(url.toString());
-      ws.onmessage = (ev) => {
-        try {
-          const payload = JSON.parse(ev.data);
-          if (payload.type === 'downloads') {
-            queryClient.setQueryData(['downloads'], payload.data);
-          }
-        } catch {
-          // ignore
-        }
-      };
-      return () => ws.close();
-    } catch {
-      // ignore errors and fall back to polling
-    }
-  }, [queryClient]);
 
   const pauseMut = useApiMutation<void, { id: string }>(
     (v) => ({
