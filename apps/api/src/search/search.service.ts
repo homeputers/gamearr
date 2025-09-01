@@ -1,12 +1,10 @@
-import { Injectable, Inject } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import {
   listIndexers,
-  getIndexer,
   score,
   type IndexerResult,
   type IndexerQuery,
 } from '@gamearr/domain';
-import { DownloadsService } from '../downloads/downloads.service.js';
 
 interface SearchQuery {
   title: string;
@@ -22,9 +20,7 @@ interface SearchResult extends IndexerResult {
 
 @Injectable()
 export class SearchService {
-  constructor(
-    @Inject(DownloadsService) private readonly downloads: DownloadsService,
-  ) {}
+  constructor() {}
 
   private cache = new Map<string, IndexerResult>();
 
@@ -115,28 +111,5 @@ export class SearchService {
     return { results: scored.slice(0, limit) };
   }
 
-  async downloadFromSearch(indexerKey: string, id: string, category?: string) {
-    const key = `${indexerKey}:${id}`;
-    let result = this.cache.get(key);
-    if (!result) {
-      const indexer = getIndexer(indexerKey);
-      if (!indexer) {
-        throw new Error('Indexer not found');
-      }
-      if (indexer.getById) {
-        result = (await indexer.getById(id)) ?? undefined;
-      } else {
-        const res = await indexer.search({ title: '', platform: '', limit: 1 });
-        result = res.find((r) => r.id === id);
-      }
-      if (!result) {
-        throw new Error('Result not found');
-      }
-    }
-    if (!result.link || !result.link.startsWith('magnet:')) {
-      throw new Error('Unsupported link');
-    }
-    return this.downloads.addMagnet(result.link, category);
-  }
 }
 

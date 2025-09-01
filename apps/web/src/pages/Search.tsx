@@ -103,7 +103,10 @@ export function Search() {
     onError: (err) => toast.error(err.message),
   });
 
-  const addFromSearch = useApiMutation<void, { indexer: string; id: string }>((v) => ({
+  const addFromSearch = useApiMutation<
+    void,
+    { indexerKey: string; id: string; link?: string }
+  >((v) => ({
     path: '/downloads/from-search',
     init: { method: 'POST', body: JSON.stringify(v) },
   }), {
@@ -198,7 +201,11 @@ export function Search() {
                         if (r.link && r.link.startsWith('magnet:')) {
                           addMagnet.mutate({ magnet: r.link });
                         } else {
-                          addFromSearch.mutate({ indexer: r.indexer, id: r.id });
+                          addFromSearch.mutate({
+                            indexerKey: r.indexer,
+                            id: r.id,
+                            link: r.link,
+                          });
                         }
                       }}
                     >

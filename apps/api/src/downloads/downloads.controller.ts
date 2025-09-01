@@ -9,6 +9,15 @@ const magnetSchema = z.object({
   category: z.string().optional(),
 });
 
+const fromSearchSchema = z
+  .object({
+    indexerKey: z.string(),
+    id: z.string().optional(),
+    link: z.string().optional(),
+    category: z.string().optional(),
+  })
+  .refine((d) => d.id || d.link, { message: 'id or link required' });
+
 @ApiTags('downloads')
 @Controller('downloads')
 export class DownloadsController {
@@ -23,6 +32,29 @@ export class DownloadsController {
     body: { magnet: string; category?: string },
   ) {
     return this.service.addMagnet(body.magnet, body.category);
+  }
+
+  @Post('from-search')
+  @ApiBody({
+    schema: {
+      properties: {
+        indexerKey: { type: 'string' },
+        id: { type: 'string', nullable: true },
+        link: { type: 'string', nullable: true },
+        category: { type: 'string', nullable: true },
+      },
+    },
+  })
+  addFromSearch(
+    @Body(new ZodValidationPipe(fromSearchSchema))
+    body: {
+      indexerKey: string;
+      id?: string;
+      link?: string;
+      category?: string;
+    },
+  ) {
+    return this.service.addFromSearch(body);
   }
 
   @Get()

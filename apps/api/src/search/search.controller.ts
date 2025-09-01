@@ -1,4 +1,4 @@
-import { Controller, Get, Query, Post, Body, Inject } from '@nestjs/common';
+import { Controller, Get, Query, Inject } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { SearchService } from './search.service.js';
 
@@ -30,13 +30,5 @@ export class SearchController {
     });
   }
 
-  @Post('downloads/from-search')
-  download(@Body() body: { indexer: string; id: string; category?: string }) {
-    return this.service.downloadFromSearch(
-      body.indexer,
-      body.id,
-      body.category,
-    );
-  }
 }
 

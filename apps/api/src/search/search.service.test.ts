@@ -2,8 +2,6 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import type { Indexer, IndexerQuery, IndexerResult } from '@gamearr/domain';
 
-class MockDownloadsService {}
-
 test('search dedupes, scores and respects limit', async () => {
   process.env.DATA_ROOT = '/tmp';
   process.env.DOWNLOADS_ROOT = '/tmp';
@@ -60,7 +58,7 @@ test('search dedupes, scores and respects limit', async () => {
   registerIndexer(ix1);
   registerIndexer(ix2);
 
-  const service = new SearchService(new MockDownloadsService() as any);
+  const service = new SearchService();
   const { results } = await service.search({ title: 'Mario', platform: 'snes' });
 
   assert.equal(results.length, 2);
