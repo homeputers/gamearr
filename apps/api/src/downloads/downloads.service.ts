@@ -1,5 +1,6 @@
 import { Injectable, Inject } from '@nestjs/common';
 import { QbitClient } from '@gamearr/adapters';
+import { getIndexer } from '@gamearr/domain';
 import { readSettings } from '@gamearr/shared';
 import { PrismaService } from '../prisma/prisma.service.js';
 
@@ -21,7 +22,11 @@ export class DownloadsService {
     });
   }
 
-  async addMagnet(magnet: string, category?: string) {
+  async addMagnet(
+    magnet: string,
+    category?: string,
+    extra: Record<string, unknown> = {},
+  ) {
     const client = await this.getClient();
     await client.addMagnet(magnet, { category });
     const hashMatch = magnet.match(/btih:([^&]+)/i);
@@ -30,9 +35,44 @@ export class DownloadsService {
       data: {
         state: 'queued',
         client: 'qbit',
-        payload: { magnet, hash, category },
+        payload: { magnet, hash, category, ...extra },
       },
     });
+  }
+
+  async addFromSearch(opts: {
+    indexerKey: string;
+    id?: string;
+    link?: string;
+    category?: string;
+  }) {
+    const { indexerKey, id, link, category } = opts;
+    let url = link;
+    if (!url || !url.startsWith('magnet:')) {
+      const indexer = getIndexer(indexerKey);
+      if (!indexer) {
+        throw new Error('Indexer not found');
+      }
+      if (!id) {
+        throw new Error('id required');
+      }
+      if (!indexer.getById) {
+        throw new Error('Indexer does not support getById');
+      }
+      const res = await indexer.getById(id);
+      if (!res) {
+        throw new Error('Result not found');
+      }
+      if (res.link) {
+        url = res.link;
+      } else if (res.infoHash) {
+        url = `magnet:?xt=urn:btih:${res.infoHash}`;
+      }
+    }
+    if (!url) {
+      throw new Error('No download link available');
+    }
+    return this.addMagnet(url, category, { indexerKey, id });
   }
 
   async list() {
