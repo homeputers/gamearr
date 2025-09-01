@@ -47,6 +47,7 @@ export class TorznabIndexer implements Indexer {
     const url = `${this.baseUrl}/api?${searchParams.toString()}`;
     try {
       const res = await throttledGet(url, { timeoutMs: this.timeoutMs });
+      console.debug(`[torznab:${this.key}] response status ${res.status}`);
       if (!res.ok) return null;
       return await res.text();
     } catch {
