@@ -28,6 +28,7 @@ export function SettingsPlatform() {
     path: `/platforms/${id}`,
   });
   const [uploadProgress, setUploadProgress] = useState<number | null>(null);
+  const [showRecheckTip, setShowRecheckTip] = useState(false);
 
   const activateMutation = useApiMutation<unknown, { datFileId: string }>(
     ({ datFileId }) => ({
@@ -38,6 +39,7 @@ export function SettingsPlatform() {
       onSuccess: () => {
         toast('Activated');
         refetch();
+        setShowRecheckTip(true);
       },
       onError: (err: ApiError) => toast.error(err.message),
     },
@@ -128,9 +130,21 @@ export function SettingsPlatform() {
         />
         {uploadProgress !== null && <div>Uploading {uploadProgress}%</div>}
       </div>
-      <Button onClick={() => recheckMutation.mutate()} disabled={recheckMutation.isPending}>
-        Re-check unmatched with active DAT
-      </Button>
+      {showRecheckTip && (
+        <div className="text-sm">
+          DAT activated.{' '}
+          <button
+            className="text-blue-500 underline"
+            onClick={() => {
+              setShowRecheckTip(false);
+              recheckMutation.mutate();
+            }}
+            disabled={recheckMutation.isPending}
+          >
+            Recheck unmatched?
+          </button>
+        </div>
+      )}
       <table className="w-full text-sm">
         <thead>
           <tr>
