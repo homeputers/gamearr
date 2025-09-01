@@ -56,6 +56,40 @@ export class DownloadsService {
     });
   }
 
+  async pause(id: string) {
+    const existing = await this.prisma.download.findUnique({ where: { id } });
+    if (!existing) return null;
+    const payload = (existing.payload as any) || {};
+    const hash = payload.hash as string | undefined;
+    if (hash) {
+      try {
+        const client = await this.getClient();
+        await client.pauseTorrent(hash);
+      } catch {
+        // ignore errors from download client
+      }
+    }
+    await this.prisma.download.update({ where: { id }, data: { state: 'paused' } });
+    return { status: 'paused' };
+  }
+
+  async resume(id: string) {
+    const existing = await this.prisma.download.findUnique({ where: { id } });
+    if (!existing) return null;
+    const payload = (existing.payload as any) || {};
+    const hash = payload.hash as string | undefined;
+    if (hash) {
+      try {
+        const client = await this.getClient();
+        await client.resumeTorrent(hash);
+      } catch {
+        // ignore errors from download client
+      }
+    }
+    await this.prisma.download.update({ where: { id }, data: { state: 'queued' } });
+    return { status: 'resumed' };
+  }
+
   async remove(id: string) {
     const existing = await this.prisma.download.findUnique({ where: { id } });
     if (!existing) return null;
