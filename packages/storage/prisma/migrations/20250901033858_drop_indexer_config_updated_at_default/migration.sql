@@ -1,2 +1,2 @@
 -- AlterTable
-ALTER TABLE "IndexerConfig" ALTER COLUMN "updated_at" DROP DEFAULT;
+ALTER TABLE IF EXISTS "IndexerConfig" ALTER COLUMN "updated_at" DROP DEFAULT;
