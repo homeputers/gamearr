@@ -1,5 +1,5 @@
 import type { Job } from 'bullmq';
-import { logger } from '@gamearr/shared';
+import { logger, addActivity } from '@gamearr/shared';
 import prisma from '@gamearr/storage/src/client';
 import { hashFile, parseCue, parseGdi } from '@gamearr/domain';
 import { promises as fs } from 'node:fs';
@@ -32,6 +32,12 @@ export async function hashProcessor(job: Job<HashJob>) {
   const format = ext ? ext.slice(1) : null;
 
   const { crc32, sha1 } = await hashFile(fullPath);
+  await addActivity({
+    type: 'hash',
+    timestamp: new Date().toISOString(),
+    message: `Hashed ${artifact.path}`,
+    details: { file: fullPath, crc32, sha1 },
+  });
 
   let multiPartGroup: string | undefined;
 
@@ -112,6 +118,12 @@ export async function hashProcessor(job: Job<HashJob>) {
       where: { id: artifactId },
       data: { releaseId: release.id },
     });
+    await addActivity({
+      type: 'match',
+      timestamp: new Date().toISOString(),
+      message: `Matched ${artifact.path} to ${datEntry.canonicalName}`,
+      details: { file: fullPath, dat: datEntry.canonicalName, confidence: 1 },
+    });
   } else {
     // Fallback: create a game entry using the file name when no DAT match is found
     const title = path.basename(artifact.path, path.extname(artifact.path));
@@ -130,6 +142,12 @@ export async function hashProcessor(job: Job<HashJob>) {
     await prisma.artifact.update({
       where: { id: artifactId },
       data: { releaseId: release.id },
+    });
+    await addActivity({
+      type: 'match',
+      timestamp: new Date().toISOString(),
+      message: `No DAT match for ${artifact.path}`,
+      details: { file: fullPath, confidence: 0 },
     });
   }
 }

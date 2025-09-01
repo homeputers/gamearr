@@ -36,7 +36,7 @@ async function processFile(fullPath: string, completedDir: string, stagingDir: s
     type: 'import',
     timestamp: new Date().toISOString(),
     message: `Imported ${name}`,
-    details: { file: name, hash: sha1, target: dest },
+    details: { file: dest, source: fullPath, hashes: { sha1 }, target: dest },
   });
 
   if (tempDir) await fs.rm(tempDir, { recursive: true, force: true });
@@ -75,7 +75,7 @@ export function startWatchCompleted(interval = 5000) {
             type: 'error',
             timestamp: new Date().toISOString(),
             message: err.message,
-            details: { file: entry },
+            details: { file: full },
             retry: { path: `/imports/activity/${id}/retry`, method: 'POST' },
           });
           logger.error({ err, file: entry }, 'failed to import');
