@@ -40,7 +40,7 @@ async function processFile(fullPath: string, stagingDir: string, destRoot: strin
     type: 'import',
     timestamp: new Date().toISOString(),
     message: `Imported ${name}`,
-    details: { file: name, hash: sha1, target: dest },
+    details: { file: dest, source: fullPath, hashes: { sha1 }, target: dest },
   });
 
   if (tempDir) await fs.rm(tempDir, { recursive: true, force: true });
@@ -68,7 +68,7 @@ export async function importProcessor(job: Job<ImportJob>) {
       type: 'error',
       timestamp: new Date().toISOString(),
       message: err.message,
-      details: { file: path.basename(job.data.path) },
+      details: { file: job.data.path },
       retry: { path: `/imports/activity/${id}/retry`, method: 'POST' },
     });
     logger.error({ err, file: job.data.path }, 'failed to import');

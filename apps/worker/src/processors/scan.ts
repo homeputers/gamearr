@@ -1,6 +1,6 @@
 import type { Job } from 'bullmq';
 import { Queue } from 'bullmq';
-import { logger, config } from '@gamearr/shared';
+import { logger, config, addActivity } from '@gamearr/shared';
 import prisma from '@gamearr/storage/src/client';
 import { walk } from '@gamearr/domain';
 import { promises as fs } from 'node:fs';
@@ -37,6 +37,12 @@ export async function scanProcessor(job: Job<{ libraryId: string }>) {
       if (hashQueue) {
         await hashQueue.add('hash', { artifactId: artifact.id });
       }
+      await addActivity({
+        type: 'scan',
+        timestamp: new Date().toISOString(),
+        message: `Scanned ${rel}`,
+        details: { file: full },
+      });
     } else if (existing.size !== stat.size) {
       await prisma.artifact.update({
         where: { id: existing.id },
