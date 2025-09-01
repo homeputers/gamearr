@@ -8,10 +8,12 @@ interface SearchResult {
   indexer: string;
   id: string;
   title: string;
-  platform: string;
+  platform?: string;
   sizeBytes?: number;
   seeders?: number;
   link?: string;
+  publishedAt?: string;
+  score: number;
 }
 
 function formatSize(bytes?: number) {
@@ -84,28 +86,22 @@ export function Search() {
     path: '/platforms',
   });
 
+  const indexersQuery = useApiQuery<
+    { key: string; isEnabled: boolean }[]
+  >({
+    queryKey: ['indexers'],
+    path: '/indexers',
+  });
+
   const searchQuery = useApiQuery<{ results: SearchResult[] }>({
     queryKey: ['search', query],
     path: query ? `/search${query}` : '',
     enabled: !!query,
   });
 
-  const addMagnet = useApiMutation<void, { magnet: string }>((v) => ({
-    path: '/downloads/magnet',
-    init: { method: 'POST', body: JSON.stringify({ magnet: v.magnet }) },
-  }), {
-    onSuccess: () =>
-      toast(
-        <span>
-          Added to downloads. <a href="/downloads" className="underline">View downloads</a>
-        </span>,
-      ),
-    onError: (err) => toast.error(err.message),
-  });
-
   const addFromSearch = useApiMutation<
     void,
-    { indexerKey: string; id: string; link?: string }
+    { indexerKey: string; id?: string; link?: string }
   >((v) => ({
     path: '/downloads/from-search',
     init: { method: 'POST', body: JSON.stringify(v) },
@@ -132,13 +128,33 @@ export function Search() {
 
   const results = searchQuery.data?.results ?? [];
 
+  const enabledIndexers = indexersQuery.data?.filter((ix) => ix.isEnabled) ?? [];
+
+  if (indexersQuery.isSuccess && enabledIndexers.length === 0) {
+    return (
+      <div>
+        <h1 className="text-xl mb-4">Search</h1>
+        <p className="text-gray-500">
+          No indexers enabled.{' '}
+          <a href="/settings/indexers" className="underline">
+            Configure indexers
+          </a>
+        </p>
+      </div>
+    );
+  }
+
   return (
     <div>
       <h1 className="text-xl mb-4">Search</h1>
       <form onSubmit={submit} className="space-y-2 mb-4">
         <div>
           <label className="block text-sm mb-1">Title</label>
-          <Input value={title} onChange={(e) => setTitle(e.target.value)} />
+          <Input
+            required
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+          />
         </div>
         <div>
           <label className="block text-sm mb-1">Platform</label>
@@ -180,9 +196,10 @@ export function Search() {
               <tr className="text-left">
                 <th className="p-2">Indexer</th>
                 <th className="p-2">Title</th>
-                <th className="p-2">Platform</th>
                 <th className="p-2">Size</th>
                 <th className="p-2">Seeders</th>
+                <th className="p-2">Published</th>
+                <th className="p-2">Score</th>
                 <th className="p-2">Action</th>
               </tr>
             </thead>
@@ -191,23 +208,24 @@ export function Search() {
                 <tr key={`${r.indexer}:${r.id}`} className="border-t">
                   <td className="p-2">{r.indexer}</td>
                   <td className="p-2">{r.title}</td>
-                  <td className="p-2">{r.platform}</td>
                   <td className="p-2">{formatSize(r.sizeBytes)}</td>
                   <td className="p-2">{r.seeders ?? '—'}</td>
                   <td className="p-2">
+                    {r.publishedAt
+                      ? new Date(r.publishedAt).toLocaleDateString()
+                      : '—'}
+                  </td>
+                  <td className="p-2">{r.score.toFixed(1)}</td>
+                  <td className="p-2">
                     <button
                       className="text-blue-600"
-                      onClick={() => {
-                        if (r.link && r.link.startsWith('magnet:')) {
-                          addMagnet.mutate({ magnet: r.link });
-                        } else {
-                          addFromSearch.mutate({
-                            indexerKey: r.indexer,
-                            id: r.id,
-                            link: r.link,
-                          });
-                        }
-                      }}
+                      onClick={() =>
+                        addFromSearch.mutate({
+                          indexerKey: r.indexer,
+                          id: r.id,
+                          link: r.link,
+                        })
+                      }
                     >
                       Add
                     </button>
