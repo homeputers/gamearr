@@ -18,6 +18,12 @@ jobs:
       - run: pnpm install
       - run: pnpm turbo build
       - run: pnpm test
+      - run: pnpm --filter @gamearr/web test -- --coverage
+      - uses: codecov/codecov-action@v4
+        with:
+          files: apps/web/coverage/lcov.info
+          token: ${{ secrets.CODECOV_TOKEN }}
+          fail_ci_if_error: true
       - name: Build Docker images
         if: github.ref == 'refs/heads/main'
         env:
