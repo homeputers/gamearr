@@ -218,6 +218,10 @@ importers:
       fast-xml-parser:
         specifier: ^5.2.5
         version: 5.2.5
+    devDependencies:
+      '@types/node':
+        specifier: ^20.0.0
+        version: 20.19.11
 
   packages/domain:
     devDependencies:
