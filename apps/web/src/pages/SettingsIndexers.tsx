@@ -78,24 +78,22 @@ export function SettingsIndexers() {
   const testMutation = useApiMutation<{ ok: boolean; error?: string }, { key: string }>(
     ({ key }) => ({ path: `/indexers/${key}/test`, init: { method: 'POST' } }),
   );
-
-  const [testResults, setTestResults] = useState<Record<string, string>>({});
   const [modalOpen, setModalOpen] = useState(false);
   const [editing, setEditing] = useState<IndexerConfig | null>(null);
 
   const handleTest = (key: string) => {
-    setTestResults((prev) => ({ ...prev, [key]: 'Testing...' }));
     testMutation.mutate(
       { key },
       {
         onSuccess: (res) => {
-          setTestResults((prev) => ({
-            ...prev,
-            [key]: res.ok ? 'OK' : `Failed: ${res.error}`,
-          }));
+          if (res.ok) {
+            toast('Indexer test succeeded');
+          } else {
+            toast.error(res.error || 'Indexer test failed');
+          }
         },
         onError: (err: ApiError) => {
-          setTestResults((prev) => ({ ...prev, [key]: `Error: ${err.message}` }));
+          toast.error(err.message);
         },
       },
     );
@@ -162,9 +160,6 @@ export function SettingsIndexers() {
                     Delete
                   </Button>
                 </div>
-                {testResults[ix.key] && (
-                  <div className="mt-1 text-xs">{testResults[ix.key]}</div>
-                )}
               </td>
             </tr>
           ))}
