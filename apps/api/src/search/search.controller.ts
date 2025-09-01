@@ -9,10 +9,11 @@ export class SearchController {
 
   @Get('search')
   search(
-    @Query('title') title = '',
+    @Query('title') title: string,
     @Query('platform') platform = '',
     @Query('year') year?: string,
     @Query('regionPref') regionPref?: string,
+    @Query('limit') limit?: string,
   ) {
     const regions = regionPref
       ? regionPref
@@ -25,6 +26,7 @@ export class SearchController {
       platform,
       year: year ? Number(year) : undefined,
       regionPref: regions,
+      limit: limit ? Number(limit) : undefined,
     });
   }
 
