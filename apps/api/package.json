@@ -23,6 +23,7 @@
     "archiver": "^7.0.1",
     "bullmq": "^5.0.0",
     "pino-http": "^9.0.0",
+    "helmet": "^7.0.0",
     "reflect-metadata": "^0.1.13",
     "rxjs": "^7.8.2",
     "zod": "^3.22.4"

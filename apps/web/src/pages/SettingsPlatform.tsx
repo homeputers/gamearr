@@ -1,6 +1,7 @@
 import { useParams, Link } from 'react-router-dom';
 import { useState } from 'react';
 import { useApiQuery, useApiMutation, ApiError } from '../lib/api';
+import { getToken } from '../lib/token';
 import { Button } from '../components/ui/button';
 import { toast } from 'sonner';
 
@@ -86,7 +87,7 @@ export function SettingsPlatform() {
     const formData = new FormData();
     formData.append('file', file);
     const xhr = new XMLHttpRequest();
-    const token = localStorage.getItem('token');
+    const token = getToken();
     xhr.open('POST', `${API_BASE}/platforms/${id}/dat/upload`);
     if (token) xhr.setRequestHeader('Authorization', `Bearer ${token}`);
     xhr.upload.onprogress = (e) => {
