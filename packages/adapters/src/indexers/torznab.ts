@@ -4,7 +4,7 @@ import type {
   IndexerQuery,
   IndexerResult,
 } from '@gamearr/domain';
-import { get } from '../http.js';
+import { throttledGet } from '../net/throttle.js';
 
 interface TorznabOpts {
   key: string;
@@ -39,22 +39,13 @@ export class TorznabIndexer implements Indexer {
       searchParams.set('cat', this.categories.join(','));
     }
     const url = `${this.baseUrl}/api?${searchParams.toString()}`;
-    for (let attempt = 0; attempt < 3; attempt++) {
-      try {
-        const res = await get(url, { timeoutMs: this.timeoutMs });
-        if (res.status === 429) {
-          const retryAfter = res.headers.get('retry-after');
-          const delay = retryAfter ? Number(retryAfter) * 1000 : 1000;
-          await new Promise((r) => setTimeout(r, delay));
-          continue;
-        }
-        if (!res.ok) return null;
-        return await res.text();
-      } catch {
-        return null;
-      }
+    try {
+      const res = await throttledGet(url, { timeoutMs: this.timeoutMs });
+      if (!res.ok) return null;
+      return await res.text();
+    } catch {
+      return null;
     }
-    return null;
   }
 
   private parseItem(item: any, platform?: string): IndexerResult {
