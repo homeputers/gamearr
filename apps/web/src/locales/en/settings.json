@@ -2,6 +2,7 @@
   "organizeSettings": "Organize Settings",
   "exporters": "Exporters",
   "providers": "Providers",
+  "indexers": "Indexers",
   "platforms": "Platforms",
   "apiHealth": "API health: {{status}}",
   "regionPriority": "Region Priority",

@@ -35,6 +35,11 @@ export function Settings() {
         </Link>
       </div>
       <div>
+        <Link to="/settings/indexers" className="text-blue-500 underline">
+          {t('indexers')}
+        </Link>
+      </div>
+      <div>
         <Link to="/settings/platforms" className="text-blue-500 underline">
           {t('platforms')}
         </Link>

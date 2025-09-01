@@ -15,6 +15,7 @@ import { SettingsExporters } from '../pages/SettingsExporters';
 import { SettingsProviders } from '../pages/SettingsProviders';
 import { SettingsPlatforms } from '../pages/SettingsPlatforms';
 import { SettingsPlatform } from '../pages/SettingsPlatform';
+import { SettingsIndexers } from '../pages/SettingsIndexers';
 import { Insights } from '../pages/Insights';
 import { Support } from '../pages/Support';
 import { Input } from '../components/ui/input';
@@ -179,6 +180,7 @@ export function Layout() {
             <Route path="/settings/organize" element={<SettingsOrganize />} />
             <Route path="/settings/exporters" element={<SettingsExporters />} />
             <Route path="/settings/providers" element={<SettingsProviders />} />
+            <Route path="/settings/indexers" element={<SettingsIndexers />} />
             <Route path="/settings/platforms" element={<SettingsPlatforms />} />
             <Route path="/settings/platforms/:id" element={<SettingsPlatform />} />
           <Route path="/support" element={<Support />} />
