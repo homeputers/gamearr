@@ -20,8 +20,12 @@ export class ImportsService {
     if (!artifact) {
       throw new NotFoundException('Artifact not found');
     }
-    const path = await moveArtifact(artifact as any, template, romsRoot);
-    return { path };
+    if (!artifact.library.autoOrganizeOnImport) {
+      const src = path.join(artifact.library.path, artifact.path);
+      return { path: src };
+    }
+    const organized = await moveArtifact(artifact as any, template, romsRoot);
+    return { path: organized };
   }
 
   async preview(artifactId: string, template: string, romsRoot = '/roms') {
