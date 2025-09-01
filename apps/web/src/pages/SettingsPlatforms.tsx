@@ -28,6 +28,7 @@ export function SettingsPlatforms() {
             <th className="text-left p-2">Aliases</th>
             <th className="text-left p-2">Active DAT</th>
             <th className="text-left p-2">Activated</th>
+            <th className="text-left p-2">DAT Status</th>
             <th className="text-left p-2">Counts</th>
             <th className="p-2" />
           </tr>
@@ -42,6 +43,17 @@ export function SettingsPlatforms() {
                 {p.activeDatFile?.activatedAt
                   ? new Date(p.activeDatFile.activatedAt).toLocaleDateString()
                   : '-'}
+              </td>
+              <td className="p-2">
+                {p.activeDatFile?.activatedAt ? (
+                  <span className="bg-green-100 text-green-800 text-xs font-medium px-2 py-0.5 rounded">
+                    DAT matching active
+                  </span>
+                ) : (
+                  <span className="bg-yellow-100 text-yellow-800 text-xs font-medium px-2 py-0.5 rounded">
+                    DAT matching inactive
+                  </span>
+                )}
               </td>
               <td className="p-2">
                 {p.counts
