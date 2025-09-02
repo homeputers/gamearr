@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import {
   listIndexers,
   score,
@@ -22,6 +22,7 @@ interface SearchResult extends IndexerResult {
 
 @Injectable()
 export class SearchService {
+  private readonly logger = new Logger(SearchService.name);
   private redisClient?: Promise<any>;
   constructor() {
     if (config.redisUrl) {
@@ -53,6 +54,11 @@ export class SearchService {
     }
 
     const indexers = listIndexers();
+    this.logger.log(
+      `searching ${indexers.length} indexer(s): ${indexers
+        .map((i) => i.key)
+        .join(', ')}`,
+    );
     const results = (
       await Promise.all(
         indexers.map(async (idx) => {

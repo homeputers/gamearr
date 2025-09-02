@@ -11,6 +11,7 @@ interface TorznabOpts {
   name?: string;
   baseUrl: string;
   apiKey: string;
+  indexerIds?: number[];
   categories?: number[];
   timeoutMs?: number;
 }
@@ -21,6 +22,7 @@ export class TorznabIndexer implements Indexer {
   kind: 'torznab' = 'torznab';
   private baseUrl: string;
   private apiKey: string;
+  private indexerIds?: number[];
   private categories?: number[];
   private timeoutMs: number;
 
@@ -29,6 +31,7 @@ export class TorznabIndexer implements Indexer {
     this.name = opts.name ?? opts.key;
     this.baseUrl = opts.baseUrl.replace(/\/$/, '');
     this.apiKey = opts.apiKey;
+    this.indexerIds = opts.indexerIds;
     this.categories = opts.categories;
     this.timeoutMs = opts.timeoutMs ?? 10000;
   }
@@ -38,9 +41,13 @@ export class TorznabIndexer implements Indexer {
     if (this.categories?.length && !searchParams.has('cat')) {
       searchParams.set('cat', this.categories.join(','));
     }
+    if (this.indexerIds?.length && !searchParams.has('indexerIds')) {
+      searchParams.set('indexerIds', this.indexerIds.join(','));
+    }
     const url = `${this.baseUrl}/api?${searchParams.toString()}`;
     try {
       const res = await throttledGet(url, { timeoutMs: this.timeoutMs });
+      console.debug(`[torznab:${this.key}] GET ${url} -> ${res.status}`);
       if (!res.ok) return null;
       return await res.text();
     } catch {

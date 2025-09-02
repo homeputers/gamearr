@@ -29,6 +29,7 @@ export class RssMagnetIndexer implements Indexer {
     try {
       if (this.url.startsWith('http://') || this.url.startsWith('https://')) {
         const res = await throttledGet(this.url, { timeoutMs: this.timeoutMs });
+        console.debug(`[rss:${this.key}] GET ${this.url} -> ${res.status}`);
         if (!res.ok) return null;
         return await res.text();
       }

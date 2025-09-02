@@ -1,6 +1,9 @@
 import { Injectable, Inject, OnModuleInit } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service.js';
-import { createTorznabIndexer, createRssMagnetIndexer } from '@gamearr/adapters';
+import {
+  createTorznabIndexer,
+  createRssMagnetIndexer,
+} from '@gamearr/adapters';
 import { registerIndexer, unregisterIndexer } from '@gamearr/domain';
 
 interface IndexerConfig {
