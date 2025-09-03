@@ -11,6 +11,7 @@ The project uses a handful of environment variables for core services. Copy `.en
 | `LIB_ROOT` | Path where processed games are stored. |
 | `DOWNLOADS_ROOT` | Directory for temporary downloads and settings file. |
 | `DATA_ROOT` | Persistent data directory for services. |
+| `LOG_LEVEL` | Logging verbosity for all services (default: debug in development, info in production). |
 | `MAX_DAT_UPLOAD_MB` | Maximum allowed DAT upload size in megabytes (default: 512). |
 | `DAT_PRUNE_KEEP` | Number of inactive DATs to retain per platform (default: 2). |
 | `AUTH_TOKEN` | When set, required as a Bearer token for mutating API routes and downloads. |
