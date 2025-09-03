@@ -1,4 +1,4 @@
-import pino, { multistream } from 'pino';
+import pino, { multistream, type Level } from 'pino';
 import { AsyncLocalStorage } from 'node:async_hooks';
 import { randomUUID } from 'node:crypto';
 import { mkdirSync } from 'node:fs';
@@ -15,7 +15,11 @@ const streams = multistream([
   { stream: process.stdout },
 ]);
 
+const level = (process.env.LOG_LEVEL as Level | undefined) ??
+  (process.env.NODE_ENV === 'production' ? 'info' : 'debug');
+
 export const logger = pino({
+  level,
   redact: {
     paths: ['req.headers.authorization', '*.token', 'token', '*.password', 'password'],
     censor: '[Redacted]',
