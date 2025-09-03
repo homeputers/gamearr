@@ -22,38 +22,54 @@ export async function scanProcessor(job: Job<{ libraryId: string }>) {
     return;
   }
   const allowed = library.platform.extensions || [];
-  for await (const full of walk(library.path)) {
-    const ext = path.extname(full).toLowerCase();
-    if (allowed.length && !allowed.includes(ext)) continue;
-    const rel = path.relative(library.path, full);
-    const stat = await fs.stat(full);
-    const existing = await prisma.artifact.findUnique({
-      where: { libraryId_path: { libraryId, path: rel } },
-    });
-    if (!existing) {
-      const artifact = await prisma.artifact.create({
-        data: { libraryId, path: rel, size: stat.size },
+  logger.debug(
+    { path: library.path, extensions: allowed },
+    'starting library scan',
+  );
+
+  let processed = 0;
+  try {
+    for await (const full of walk(library.path)) {
+      logger.debug({ file: full }, 'processing file');
+      const ext = path.extname(full).toLowerCase();
+      if (allowed.length && !allowed.includes(ext)) continue;
+      const rel = path.relative(library.path, full);
+      const stat = await fs.stat(full);
+      const existing = await prisma.artifact.findUnique({
+        where: { libraryId_path: { libraryId, path: rel } },
       });
-      if (hashQueue) {
-        await hashQueue.add('hash', { artifactId: artifact.id });
+      if (!existing) {
+        const artifact = await prisma.artifact.create({
+          data: { libraryId, path: rel, size: stat.size },
+        });
+        logger.debug({ artifactId: artifact.id, rel }, 'artifact created');
+        if (hashQueue) {
+          await hashQueue.add('hash', { artifactId: artifact.id });
+        }
+        await addActivity({
+          type: 'scan',
+          timestamp: new Date().toISOString(),
+          message: `Scanned ${rel}`,
+          details: { file: full },
+        });
+      } else if (existing.size !== stat.size) {
+        await prisma.artifact.update({
+          where: { id: existing.id },
+          data: { size: stat.size },
+        });
       }
-      await addActivity({
-        type: 'scan',
-        timestamp: new Date().toISOString(),
-        message: `Scanned ${rel}`,
-        details: { file: full },
-      });
-    } else if (existing.size !== stat.size) {
-      await prisma.artifact.update({
-        where: { id: existing.id },
-        data: { size: stat.size },
-      });
+      processed += 1;
     }
+  } catch (err) {
+    logger.error({ err, path: library.path }, 'scan failed');
+    throw err;
   }
+
   await prisma.library.update({
     where: { id: libraryId },
     data: { lastScannedAt: new Date() },
   });
+  logger.info({ libraryId, processed }, 'scan complete');
 }
 
 export default scanProcessor;
